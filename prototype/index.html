@@ -830,16 +830,65 @@
 
         // [Step 1: 대분류 점수 설정 뷰 (zoomProgress < 0.5)]
         if (zoomProgress < 0.5) {
-          if (isCurrent) {
-            if (t1.intensity > 0) {
+          if (t1.intensity > 0) {
+            const subCount = t1.subnodes.length;
+
+            // [신규 핵심] 소분류가 이미 기입된 상태라면, 대분류 점수 영역 내부에 해당 소분류 쐐기들을 분할 렌더링!
+            if (subCount > 0) {
+              const wedgeSpan = sectorSpan / subCount;
+
+              // 대분류 기본 상한선 배경
               ctx.beginPath();
               ctx.moveTo(cx, cy);
               ctx.arc(cx, cy, intensityR, startAngle, endAngle);
               ctx.closePath();
-              ctx.fillStyle = 'rgba(245, 158, 11, 0.35)';
+              ctx.fillStyle = 'rgba(245, 158, 11, 0.12)';
+              ctx.fill();
+
+              t1.subnodes.forEach((sub, sIdx) => {
+                if (sub.score <= 0) return;
+                const wStart = startAngle + (sIdx * wedgeSpan);
+                const wEnd = wStart + wedgeSpan;
+                const wMid = (wStart + wEnd) / 2;
+                const fillR = minR + ((maxR - minR) / 10) * sub.score;
+
+                // 소분류 쐐기 영역 채우기
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, fillR, wStart + 0.01, wEnd - 0.01);
+                ctx.closePath();
+                ctx.fillStyle = isCurrent ? 'rgba(245, 158, 11, 0.65)' : 'rgba(245, 158, 11, 0.35)';
+                ctx.fill();
+
+                // 쐐기 경계선
+                ctx.beginPath();
+                ctx.arc(cx, cy, fillR, wStart + 0.01, wEnd - 0.01);
+                ctx.strokeStyle = isCurrent ? '#FBBF24' : 'rgba(255, 255, 255, 0.3)';
+                ctx.lineWidth = isCurrent ? 2 : 1;
+                ctx.stroke();
+
+                // 소분류 미니 이름 라벨 (선택된 대분류일 때)
+                if (isCurrent) {
+                  const lx = cx + (intensityR * 0.6) * Math.cos(wMid);
+                  const ly = cy + (intensityR * 0.6) * Math.sin(wMid);
+                  ctx.font = '600 12px Pretendard';
+                  ctx.fillStyle = '#FFF';
+                  ctx.textAlign = 'center';
+                  ctx.fillText(sub.name, lx, ly);
+                }
+              });
+            } else {
+              // 소분류가 아직 없는 경우: 대분류 단색 반투명 게이지
+              ctx.beginPath();
+              ctx.moveTo(cx, cy);
+              ctx.arc(cx, cy, intensityR, startAngle, endAngle);
+              ctx.closePath();
+              ctx.fillStyle = isCurrent ? 'rgba(245, 158, 11, 0.35)' : 'rgba(245, 158, 11, 0.18)';
               ctx.fill();
             }
+          }
 
+          if (isCurrent) {
             ctx.beginPath();
             ctx.arc(cx, cy, intensityR > minR ? intensityR : minR + 6, startAngle, endAngle);
             ctx.strokeStyle = t1.intensity > 0 ? '#FBBF24' : 'rgba(245, 158, 11, 0.5)';

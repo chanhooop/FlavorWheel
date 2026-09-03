@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flavor Wheel - Click-Drag Wheel Spin & Strict Hover Lock</title>
+  <title>Flavor Wheel - Reset to Tier1 Score View on Drag</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -699,22 +699,22 @@
     let currentTier1List = DATA_DOMAINS.whisky.tier1;
     let selectedTier1Index = 0;
 
-    // 플로우 상태
+    // 플로우 상태: 'WHEEL_NAV' (Step 1) vs 'ZOOMED_SECTOR' (Step 2)
     let currentFlowPhase = 'WHEEL_NAV';
     let zoomProgress = 0.0;
     let targetZoomProgress = 0.0;
 
-    // 휠 물리
+    // 휠 회전 물리
     let wheelAngle = 0;
     let targetWheelAngle = 0;
     let isSpinningWheel = false;
     let spinStartAngle = 0;
     let spinInitialAngle = 0;
 
-    // [중요] 포인터 다운(마우스 클릭/터치) 상태 플래그
+    // 포인터 다운 상태 관리
     let isPointerDown = false;
     let touchDownPos = { x: 0, y: 0 };
-    let gestureIntent = 'NONE'; // 'NONE' | 'HORIZONTAL_SPIN' | 'VERTICAL_SCORE'
+    let gestureIntent = 'NONE';
     let activeSubnodeIdx = -1;
 
     // 완성 차트 롱프레스
@@ -940,7 +940,7 @@
     }
 
     // ==========================================
-    // 3. 클릭 드래그 제스처 (호버 완전 차단)
+    // 3. 제스처 핸들링: 좌우 드래그 시 즉시 1단계 대분류 점수 뷰로 줌아웃 전환!
     // ==========================================
     function setupUnifiedGestures() {
       const wrap = document.getElementById('canvasWrap');
@@ -1001,7 +1001,6 @@
       };
 
       const onMove = (e) => {
-        // [중요] 마우스를 누른 상태가 아니면 절대 아무것도 하지 않음!
         if (!isPointerDown) return;
 
         const pos = getPos(e);
@@ -1013,6 +1012,13 @@
             if (Math.abs(dx) > Math.abs(dy)) {
               gestureIntent = 'HORIZONTAL_SPIN';
               isSpinningWheel = true;
+
+              // [핵심] 좌우 드래그 시작 시 즉시 1단계 대분류 점수 선택 영역으로 줌아웃 전환!
+              if (currentFlowPhase === 'ZOOMED_SECTOR') {
+                currentFlowPhase = 'WHEEL_NAV';
+                targetZoomProgress = 0.0;
+                updateHeaderUI();
+              }
             } else {
               gestureIntent = 'VERTICAL_SCORE';
             }
@@ -1022,7 +1028,7 @@
         const { cx, cy } = getWheelGeometry();
         const dist = Math.sqrt((pos.x - cx) ** 2 + (pos.y - cy) ** 2);
 
-        // 1. 클릭 후 좌우 드래그: 1:1 리얼타임 휠 회전!
+        // 1. 좌우 드래그: 1:1 리얼타임 휠 회전
         if (gestureIntent === 'HORIZONTAL_SPIN' || isSpinningWheel) {
           const curAngle = Math.atan2(pos.y - cy, pos.x - cx);
           wheelAngle = spinInitialAngle + (curAngle - spinStartAngle);
@@ -1036,7 +1042,7 @@
             updateHeaderUI();
           }
         }
-        // 2. 클릭 후 위아래 드래그: 점수 조절!
+        // 2. 위아래 드래그: 점수 조절
         else if (gestureIntent === 'VERTICAL_SCORE') {
           if (currentFlowPhase === 'WHEEL_NAV') {
             applyParentScoreFromDist(dist);
@@ -1062,7 +1068,7 @@
           }
         }
 
-        // 손 뗄 때 마그네틱 스냅 안착
+        // 손 뗄 때 마그네틱 스냅 안착 (항상 1단계 뷰 유지)
         if (isSpinningWheel) {
           isSpinningWheel = false;
           const count = currentTier1List.length;
@@ -1157,7 +1163,7 @@
       } else {
         phaseBadge.classList.add('zoomed');
         phaseText.innerText = `2단계: 소분류 평가 (상한: ${t1.intensity.toFixed(1)}점)`;
-        hintText.innerText = '↔ 클릭 후 좌우로 드래그하면 다음 대분류로 회전 전환됩니다';
+        hintText.innerText = '↔ 좌우로 드래그하면 1단계 대분류 점수 영역으로 회전 전환됩니다';
         btnZoomOut.classList.add('show');
         tapBadge.classList.remove('show');
 

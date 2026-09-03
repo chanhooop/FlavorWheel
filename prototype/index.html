@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flavor Wheel - Dynamic Leaf Scoring & Crowdsourced Tree</title>
+  <title>Flavor Wheel - Circular Dial Carousel & Distributed Subnodes</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -53,14 +53,14 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 20px 14px;
+      padding: 16px 12px;
     }
 
     /* 모바일 디바이스 프레임 */
     .device-container {
       width: 100%;
       max-width: 420px;
-      height: 910px;
+      height: 920px;
       background: var(--surface-dark);
       border-radius: 44px;
       border: 6px solid #2A2F3D;
@@ -99,7 +99,7 @@
 
     /* 상단 앱바 */
     .app-header {
-      padding: 4px 20px 8px;
+      padding: 4px 18px 8px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -115,8 +115,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       transition: all var(--duration-fast) var(--ease-out-cubic);
     }
@@ -135,20 +135,19 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* 모드 스위처 (Standard / Expert) */
     .mode-switch-wrapper {
       display: flex;
       background: rgba(0, 0, 0, 0.4);
-      padding: 3px;
+      padding: 2px;
       border-radius: 20px;
       border: 1px solid var(--border-subtle);
     }
 
     .mode-tab {
-      padding: 4px 10px;
-      font-size: 11px;
+      padding: 3px 9px;
+      font-size: 10px;
       font-weight: 600;
-      border-radius: 16px;
+      border-radius: 14px;
       border: none;
       background: transparent;
       color: var(--text-muted);
@@ -160,30 +159,30 @@
       background: var(--amber-primary);
       color: #000;
       font-weight: 700;
-      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
     }
 
-    /* 도메인 카테고리 전환 바 */
+    /* 도메인 전환 바 */
     .domain-selector-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 18px;
+      padding: 5px 16px;
       background: rgba(0,0,0,0.3);
       border-bottom: 1px solid var(--border-subtle);
       font-size: 11px;
     }
     .domain-pill-wrap {
       display: flex;
-      gap: 6px;
+      gap: 5px;
     }
     .domain-pill {
       background: rgba(255,255,255,0.05);
       border: 1px solid var(--border-subtle);
       color: var(--text-sub);
-      padding: 2px 8px;
+      padding: 2px 7px;
       border-radius: 10px;
       cursor: pointer;
+      font-size: 10px;
       transition: all var(--duration-fast) var(--ease-out-cubic);
     }
     .domain-pill.active {
@@ -207,18 +206,13 @@
       background: var(--emerald-sync);
       border-radius: 50%;
       box-shadow: 0 0 6px var(--emerald-sync);
-      animation: pulse-sync 2s infinite;
-    }
-    @keyframes pulse-sync {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
     }
 
-    /* 스크롤 컨텐츠 영역 */
+    /* 스크롤 컨텐츠 */
     .content-scroll {
       flex: 1;
       overflow-y: auto;
-      padding: 12px 16px 90px;
+      padding: 10px 14px 90px;
       scroll-behavior: smooth;
     }
     .content-scroll::-webkit-scrollbar {
@@ -229,295 +223,289 @@
       border-radius: 4px;
     }
 
-    /* 위스키 인포 카드 */
+    /* 위스키 헤더 */
     .whisky-card {
       background: linear-gradient(135deg, rgba(22, 27, 34, 0.95), rgba(30, 36, 48, 0.7));
       border: 1px solid var(--card-border);
       border-radius: var(--radius-md);
-      padding: 10px 12px;
+      padding: 8px 12px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      gap: 10px;
+      margin-bottom: 10px;
     }
-
     .whisky-thumb {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 8px;
       background: linear-gradient(135deg, #2D1B08, #18120A);
       border: 1px solid rgba(245, 158, 11, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 18px;
       flex-shrink: 0;
     }
-
     .whisky-meta h3 {
       font-size: 13px;
       font-weight: 700;
       color: #FFF;
       line-height: 1.2;
-      margin-bottom: 2px;
     }
     .whisky-meta p {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--amber-light);
       display: flex;
-      align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
-    .whisky-badge {
+
+    /* 1. 상단 10점 척도 레이더 & 분산 노드 차트 섹션 */
+    .chart-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 10px 8px 6px;
+      margin-bottom: 10px;
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 6px 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .scale-badge {
       background: rgba(245, 158, 11, 0.15);
-      border: 1px solid rgba(245, 158, 11, 0.3);
+      border: 1px solid var(--amber-primary);
       padding: 1px 5px;
       border-radius: 4px;
       font-size: 9px;
       color: var(--amber-primary);
     }
 
-    /* AI 음성 배너 */
-    .ai-assist-box {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(220, 38, 38, 0.04) 100%);
-      border: 1px dashed rgba(245, 158, 11, 0.35);
-      border-radius: var(--radius-md);
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-      transition: all var(--duration-normal) var(--ease-out-cubic);
-    }
-
-    .ai-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .ai-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--amber-light);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .ai-desc {
-      font-size: 10px;
-      color: var(--text-sub);
-    }
-
-    .voice-mic-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--amber-primary), var(--amber-dark));
-      border: none;
-      color: #000;
-      font-size: 15px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
-      transition: transform var(--duration-fast) var(--ease-out-cubic);
-      flex-shrink: 0;
-    }
-    .voice-mic-btn:hover {
-      transform: scale(1.08);
-    }
-
-    /* 섹션 헤더 */
-    .section-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-    .section-title span.badge {
-      font-size: 10px;
-      font-weight: 500;
-      color: var(--amber-primary);
-    }
-
-    /* 인터랙티브 휠 카드 */
-    .wheel-section {
-      background: var(--card-bg);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: 12px 10px;
-      margin-bottom: 14px;
-      backdrop-filter: blur(10px);
-      text-align: center;
-      position: relative;
-    }
-
     .wheel-chart-container {
       position: relative;
-      width: 280px;
-      height: 280px;
+      width: 270px;
+      height: 270px;
       margin: 0 auto;
       user-select: none;
     }
-
     #radarCanvas {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      cursor: pointer;
     }
 
-    .wheel-instruction {
-      font-size: 10px;
+    /* 2. 중앙 원형 롤링 다이얼 캐러셀 (Carousel Selector) */
+    .dial-carousel-section {
+      margin-bottom: 10px;
+    }
+    .dial-carousel-title {
+      font-size: 11px;
+      font-weight: 700;
       color: var(--text-sub);
-      margin-top: 4px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
     }
 
-    /* ===================================================
-       리프(Leaf) 세부 카테고리 개별 점수화 & 커스텀 생성 패널
-       =================================================== */
-    .leaf-scoring-panel {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px solid var(--border-subtle);
+    .dial-carousel-track {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 2px 8px;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+    }
+    .dial-carousel-track::-webkit-scrollbar {
+      height: 3px;
+    }
+    .dial-carousel-track::-webkit-scrollbar-thumb {
+      background: rgba(245, 158, 11, 0.3);
+      border-radius: 3px;
+    }
+
+    .dial-card {
+      flex: 0 0 92px;
+      height: 72px;
+      background: rgba(18, 22, 31, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      text-align: left;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: pointer;
+      scroll-snap-align: center;
+      transition: all var(--duration-fast) var(--ease-out-cubic);
+      position: relative;
+    }
+    .dial-card:hover {
+      border-color: rgba(245, 158, 11, 0.4);
+      transform: translateY(-2px);
+    }
+    .dial-card.active {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(18, 22, 31, 0.95));
+      border: 1.5px solid var(--amber-primary);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+      transform: scale(1.04);
+    }
+    .dial-card.custom {
+      border-color: rgba(168, 85, 247, 0.4);
+    }
+    .dial-card .icon {
+      font-size: 18px;
+    }
+    .dial-card .name {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 80px;
+    }
+    .dial-card .score {
+      font-size: 9px;
+      color: var(--amber-primary);
+      font-weight: 700;
     }
 
-    .parent-header-row {
+    /* 새 대분류 추가 카드 */
+    .dial-card-add {
+      flex: 0 0 92px;
+      height: 72px;
+      background: rgba(168, 85, 247, 0.08);
+      border: 1px dashed var(--purple-custom);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      color: #D8B4FE;
+      cursor: pointer;
+      scroll-snap-align: center;
+      transition: all var(--duration-fast) var(--ease-out-cubic);
+    }
+    .dial-card-add:hover {
+      background: rgba(168, 85, 247, 0.2);
+      transform: scale(1.03);
+    }
+
+    /* 3. 하단 대분류 & 소분류 노드 점수 조절 패널 */
+    .scoring-editor-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 12px 10px;
+      margin-bottom: 12px;
+    }
+
+    .parent-score-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      margin-bottom: 10px;
+    }
+    .parent-score-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(0, 0, 0, 0.3);
-      padding: 6px 10px;
-      border-radius: var(--radius-sm);
-      border-left: 3px solid var(--amber-primary);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 4px;
     }
 
-    .parent-name-title {
-      font-size: 12px;
+    .subnodes-title {
+      font-size: 11px;
       font-weight: 700;
       color: var(--amber-light);
+      margin-bottom: 6px;
       display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .parent-avg-score {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--amber-primary);
+      justify-content: space-between;
     }
 
-    .leaf-list-container {
+    .subnodes-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      max-height: 220px;
+      gap: 6px;
+      max-height: 180px;
       overflow-y: auto;
-      padding-right: 4px;
+      padding-right: 2px;
+      margin-bottom: 8px;
     }
-    .leaf-list-container::-webkit-scrollbar {
+    .subnodes-list::-webkit-scrollbar {
       width: 3px;
     }
-    .leaf-list-container::-webkit-scrollbar-thumb {
+    .subnodes-list::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.15);
       border-radius: 3px;
     }
 
-    /* 개별 리프 슬라이더 아이템 카드 */
-    .leaf-card-item {
+    .subnode-item {
       background: rgba(14, 17, 23, 0.7);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
-      padding: 8px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      transition: all var(--duration-fast) var(--ease-out-cubic);
+      padding: 6px 8px;
     }
-    .leaf-card-item.custom {
+    .subnode-item.custom {
       border-color: rgba(168, 85, 247, 0.4);
       background: rgba(168, 85, 247, 0.05);
     }
-    .leaf-card-item:hover {
-      border-color: rgba(245, 158, 11, 0.4);
-    }
-
-    .leaf-info-row {
+    .subnode-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 11px;
-    }
-    .leaf-name-wrap {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      color: var(--text-main);
       font-weight: 600;
-    }
-    .custom-badge {
-      background: rgba(168, 85, 247, 0.2);
-      border: 1px solid var(--purple-custom);
-      color: #D8B4FE;
-      font-size: 9px;
-      padding: 1px 4px;
-      border-radius: 4px;
-      font-weight: 500;
-    }
-    .leaf-score-val {
-      font-weight: 700;
-      color: var(--amber-primary);
-      font-size: 12px;
+      margin-bottom: 3px;
     }
 
-    .leaf-slider-wrap {
+    .intensity-slider-wrap {
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .leaf-slider {
+    .intensity-slider {
       flex: 1;
       accent-color: var(--amber-primary);
       cursor: pointer;
       height: 5px;
     }
 
-    /* 새 향미 추가 버튼 */
-    .add-flavor-btn {
+    .add-subnode-btn {
       width: 100%;
-      padding: 8px;
+      padding: 7px;
       border-radius: var(--radius-sm);
-      background: rgba(168, 85, 247, 0.12);
+      background: rgba(168, 85, 247, 0.1);
       border: 1px dashed var(--purple-custom);
       color: #E9D5FF;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 4px;
       transition: all var(--duration-fast) var(--ease-out-cubic);
     }
-    .add-flavor-btn:hover {
-      background: rgba(168, 85, 247, 0.25);
-      color: #FFF;
-      transform: translateY(-1px);
+    .add-subnode-btn:hover {
+      background: rgba(168, 85, 247, 0.2);
     }
 
-    /* 테이스팅 입력 폼 */
+    /* 테이스팅 폼 */
     .form-group {
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .form-label {
       display: flex;
@@ -527,62 +515,18 @@
       color: var(--text-sub);
       margin-bottom: 4px;
     }
-    .form-label .icon {
-      margin-right: 4px;
-    }
-    .form-input, .form-textarea {
+    .form-textarea {
       width: 100%;
       background: rgba(14, 17, 23, 0.8);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-sm);
       color: var(--text-main);
-      padding: 8px 10px;
-      font-size: 12px;
+      padding: 7px 9px;
+      font-size: 11px;
       font-family: inherit;
-      transition: border-color var(--duration-fast) var(--ease-out-cubic);
-    }
-    .form-input:focus, .form-textarea:focus {
-      outline: none;
-      border-color: var(--amber-primary);
-      box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
-    }
-    .form-textarea {
       resize: none;
-      min-height: 48px;
+      min-height: 44px;
       line-height: 1.4;
-    }
-
-    /* 별점 입력 */
-    .rating-wrap {
-      display: flex;
-      gap: 6px;
-      font-size: 20px;
-      cursor: pointer;
-    }
-    .star {
-      color: #334155;
-      transition: color var(--duration-micro) var(--ease-out-cubic);
-    }
-    .star.filled {
-      color: var(--amber-primary);
-      text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
-    }
-
-    /* 전문가 모드 전용 */
-    #expertFields {
-      max-height: 0;
-      opacity: 0;
-      overflow: hidden;
-      transition: all var(--duration-normal) var(--ease-in-out-cubic);
-      border-radius: var(--radius-md);
-    }
-    #expertFields.show {
-      max-height: 400px;
-      opacity: 1;
-      background: rgba(220, 38, 38, 0.03);
-      border: 1px solid rgba(220, 38, 38, 0.2);
-      padding: 10px;
-      margin-bottom: 12px;
     }
 
     /* 하단 저장 바 */
@@ -591,15 +535,14 @@
       bottom: 0;
       left: 0;
       right: 0;
-      padding: 12px 16px;
+      padding: 10px 14px;
       background: linear-gradient(to top, var(--surface-dark) 85%, transparent 100%);
       border-top: 1px solid var(--border-subtle);
       z-index: 10;
     }
-
     .save-btn {
       width: 100%;
-      padding: 12px;
+      padding: 11px;
       border-radius: var(--radius-md);
       background: linear-gradient(135deg, #F59E0B, #D97706);
       border: none;
@@ -612,20 +555,12 @@
       justify-content: center;
       gap: 6px;
       box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
-      transition: all var(--duration-fast) var(--ease-out-cubic);
-    }
-    .save-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
     }
 
     /* 모달 */
     .modal-backdrop {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0, 0, 0, 0.85);
       backdrop-filter: blur(8px);
       z-index: 100;
@@ -642,39 +577,46 @@
       from { opacity: 0; transform: scale(0.96); }
       to { opacity: 1; transform: scale(1); }
     }
-
     .modal-box {
       width: 100%;
       background: var(--surface-dark);
       border: 1px solid var(--card-border);
       border-radius: var(--radius-lg);
-      padding: 20px 16px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
-      text-align: center;
+      padding: 18px 16px;
+      text-align: left;
     }
-
+    .form-input {
+      width: 100%;
+      background: rgba(14, 17, 23, 0.8);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      padding: 8px 10px;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
     .modal-close-btn {
       width: 100%;
-      padding: 9px;
+      padding: 8px;
       border-radius: var(--radius-sm);
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid var(--border-subtle);
       color: var(--text-main);
-      font-size: 12px;
+      font-size: 11px;
       cursor: pointer;
     }
 
-    /* 토스트 알림 */
+    /* 토스트 */
     .toast-msg {
       position: absolute;
-      top: 52px;
+      top: 50px;
       left: 50%;
       transform: translateX(-50%) translateY(-20px);
       background: rgba(16, 185, 129, 0.95);
       color: #000;
-      padding: 6px 14px;
+      padding: 5px 12px;
       border-radius: 20px;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       box-shadow: 0 4px 15px rgba(0,0,0,0.4);
       opacity: 0;
@@ -700,7 +642,7 @@
     </div>
 
     <!-- 토스트 알림 -->
-    <div class="toast-msg" id="toastMsg">💾 오프라인 로컬 DB 영속화 (0ms)</div>
+    <div class="toast-msg" id="toastMsg">💾 오프라인 로컬 DB 저장 완료</div>
 
     <!-- 앱 바 -->
     <div class="app-header">
@@ -709,22 +651,18 @@
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
       </button>
-
       <span class="app-title">FLAVOR WHEEL</span>
-
-      <!-- 모드 스위처 (Standard / Expert) -->
       <div class="mode-switch-wrapper">
-        <button class="mode-tab active" id="btnStandard" onclick="switchMode('standard')">표준</button>
-        <button class="mode-tab" id="btnExpert" onclick="switchMode('expert')">전문가</button>
+        <button class="mode-tab active">10점 척도</button>
       </div>
     </div>
 
-    <!-- 도메인 카테고리 동적 스키마 전환 바 -->
+    <!-- 도메인 선택 바 -->
     <div class="domain-selector-bar">
       <div class="domain-pill-wrap">
-        <span class="domain-pill active" onclick="loadDynamicTree('whisky', this)">🥃 위스키</span>
-        <span class="domain-pill" onclick="loadDynamicTree('wine', this)">🍷 와인</span>
-        <span class="domain-pill" onclick="loadDynamicTree('coffee', this)">☕ 커피</span>
+        <span class="domain-pill active" onclick="switchDomain('whisky', this)">🥃 위스키</span>
+        <span class="domain-pill" onclick="switchDomain('wine', this)">🍷 와인</span>
+        <span class="domain-pill" onclick="switchDomain('coffee', this)">☕ 커피</span>
       </div>
       <div class="offline-status">
         <div class="offline-dot"></div>
@@ -735,202 +673,142 @@
     <!-- 스크롤 컨텐츠 -->
     <div class="content-scroll">
       
-      <!-- 위스키 정보 카드 -->
+      <!-- 위스키 정보 -->
       <div class="whisky-card">
         <div class="whisky-thumb" id="productThumb">🥃</div>
         <div class="whisky-meta">
           <h3 id="productTitle">발베니 12년 더블우드</h3>
-          <p id="productMeta">
-            <span>40.0% ABV</span> • <span>Speyside</span>
-            <span class="whisky-badge">Single Malt</span>
-          </p>
+          <p id="productMeta"><span>40.0% ABV</span> • <span>Speyside Single Malt</span></p>
         </div>
       </div>
 
-      <!-- AI 음성 기록 시뮬레이션 배너 -->
-      <div class="ai-assist-box" id="aiAssistBox">
-        <div class="ai-info">
-          <div class="ai-title">
-            <span>✨ AI 음성 테이스팅 요약</span>
-          </div>
-          <div class="ai-desc">시음 중 편하게 말씀하시면 리프별 점수를 자동 입력합니다</div>
+      <!-- 1. 상단: 10점 척도 레이더 차트 (대분류 섹터 + 소분류 분산 노드) -->
+      <div class="chart-section">
+        <div class="chart-header">
+          <span>레이더 차트 & 섹터 내 소분류 분산</span>
+          <span class="scale-badge">Scale 0.0 ~ 10.0</span>
         </div>
-        <button class="voice-mic-btn" onclick="startVoiceSimulation()" title="AI 음성 요약 시연">
-          🎙️
+        <div class="wheel-chart-container">
+          <canvas id="radarCanvas" width="540" height="540"></canvas>
+        </div>
+      </div>
+
+      <!-- 2. 중앙: 원형 롤링 다이얼 캐러셀 (대분류 회전 탐색) -->
+      <div class="dial-carousel-section">
+        <div class="dial-carousel-title">
+          <span>대분류 원형 다이얼 (돌려서 선택)</span>
+          <span style="color:var(--amber-primary); font-size:10px;">← 좌우 스크롤 →</span>
+        </div>
+        <div class="dial-carousel-track" id="dialTrack">
+          <!-- JS로 대분류 카드들과 [+ 새 대분류] 카드가 렌더링됨 -->
+        </div>
+      </div>
+
+      <!-- 3. 하단: 선택된 대분류 강도 & 소분류 노드 점수 조절 패널 -->
+      <div class="scoring-editor-panel">
+        
+        <!-- 대분류 전체 강도 (0~10) -->
+        <div class="parent-score-box">
+          <div class="parent-score-row">
+            <span style="color:var(--amber-light);" id="currentParentLabel">🍯 달콤함 / 바닐라 (Sweet)</span>
+            <span style="color:var(--amber-primary);" id="parentScoreText">6.5 / 10.0</span>
+          </div>
+          <div class="intensity-slider-wrap">
+            <span style="font-size:9px; color:var(--text-muted);">0</span>
+            <input type="range" class="intensity-slider" id="parentSlider" min="0" max="100" value="65" 
+                   oninput="onParentSliderChange(this.value)">
+            <span style="font-size:9px; color:var(--text-muted);">10</span>
+          </div>
+        </div>
+
+        <!-- 소분류 노드별 개별 점수 (0~10) 리스트 -->
+        <div class="subnodes-title">
+          <span>섹터 내부 소분류 노드별 점수</span>
+          <span style="font-size:9px; color:var(--text-muted);">차트 내 분산 렌더링</span>
+        </div>
+        <div class="subnodes-list" id="subnodesList">
+          <!-- JS로 소분류 슬라이더 목록 렌더링 -->
+        </div>
+
+        <!-- 새 소분류 추가 버튼 -->
+        <button class="add-subnode-btn" onclick="openAddSubnodeModal()">
+          <span>➕ 현재 대분류에 새 소분류 노드 추가</span>
         </button>
       </div>
 
-      <!-- 인터랙티브 휠 & 리프 점수화 섹션 -->
-      <div class="wheel-section">
-        <div class="section-title">
-          <span>N-Depth 플레이버 휠 (60fps)</span>
-          <span class="badge" id="dominantFlavorBadge">달콤함 지배적</span>
-        </div>
-
-        <div class="wheel-chart-container">
-          <canvas id="radarCanvas" width="560" height="560"></canvas>
-        </div>
-        <p class="wheel-instruction">💡 휠 축을 터치하여 아래 세부 향미별 점수(0~5점)를 측정하세요</p>
-
-        <!-- ==============================================
-             선택된 대분류의 하위 리프(Leaf) 개별 점수화 패널
-             ============================================== -->
-        <div class="leaf-scoring-panel">
-          <!-- 상위 대분류 헤더 & 평균 점수 -->
-          <div class="parent-header-row">
-            <div class="parent-name-title">
-              <span id="parentIcon">🍯</span>
-              <span id="parentName">달콤함 / 바닐라 (Sweet)</span>
-            </div>
-            <div class="parent-avg-score">
-              평균 <span id="parentScoreVal">4.0</span> / 5.0
-            </div>
-          </div>
-
-          <!-- 하위 리프 노드 슬라이더 목록 -->
-          <div class="leaf-list-container" id="leafListContainer">
-            <!-- JavaScript로 동적 렌더링됨 -->
-          </div>
-
-          <!-- 새 향미 추가 (커스텀 생성) 버튼 -->
-          <button class="add-flavor-btn" onclick="openAddFlavorModal()">
-            <span>➕ 원하는 향미가 없나요? 새 향미 추가하기</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 종합 평점 -->
+      <!-- 기본 테이스팅 메모 -->
       <div class="form-group">
-        <div class="form-label">
-          <span>종합 평점 (Overall Rating)</span>
-          <span id="ratingScore" style="color:var(--amber-primary); font-weight:700;">4.5 / 5.0</span>
-        </div>
-        <div class="rating-wrap" id="ratingContainer">
-          <span class="star filled" onclick="setRating(1)">★</span>
-          <span class="star filled" onclick="setRating(2)">★</span>
-          <span class="star filled" onclick="setRating(3)">★</span>
-          <span class="star filled" onclick="setRating(4)">★</span>
-          <span class="star filled" onclick="setRating(5)">★</span>
-        </div>
+        <div class="form-label"><span>👃 Nose (향)</span></div>
+        <textarea class="form-textarea" id="noteNose">화사한 바닐라, 달콤한 꿀, 셰리 오크의 풍성한 아로마</textarea>
       </div>
-
-      <!-- 표준 테이스팅 필드 (Nose / Palate / Finish) -->
       <div class="form-group">
-        <div class="form-label"><span class="icon">👃</span> 향 (Nose)</div>
-        <textarea class="form-textarea" id="noteNose">달콤한 꿀과 잘 익은 바닐라 향, 은은한 건포도와 셰리 오크의 화사함</textarea>
-      </div>
-
-      <div class="form-group">
-        <div class="form-label"><span class="icon">👅</span> 맛 (Palate)</div>
-        <textarea class="form-textarea" id="notePalate">견과류의 고소함과 시나몬의 은은한 향신료, 묵직하고 부드러운 셰리의 달콤함</textarea>
-      </div>
-
-      <div class="form-group">
-        <div class="form-label"><span class="icon">⏳</span> 여운 (Finish)</div>
-        <textarea class="form-textarea" id="noteFinish">따뜻하고 부드럽게 감싸는 오크와 말린 과일의 은은하고 긴 여운</textarea>
-      </div>
-
-      <!-- 전문가 모드 확장 필드 -->
-      <div id="expertFields">
-        <div class="section-title" style="margin-bottom:6px; color:var(--ruby-sherry);">
-          <span>🔬 전문가 분석 (Expert Mode)</span>
-        </div>
-
-        <div class="form-group">
-          <div class="form-label"><span>🎨 색상 & 투명도 (Color & Clarity)</span></div>
-          <input type="text" class="form-input" id="expColor" value="1.2 호박색 (Chestnut / Oloroso Sherry)">
-        </div>
-
-        <div class="form-group">
-          <div class="form-label"><span>💧 가수 후 변화 (With Water)</span></div>
-          <textarea class="form-textarea" id="expWithWater">물을 2방울 넣자 셰리의 산미가 열리며 풋사과와 플로럴한 꽃향기가 더욱 선명해짐.</textarea>
-        </div>
+        <div class="form-label"><span>👅 Palate (맛)</span></div>
+        <textarea class="form-textarea" id="notePalate">부드러운 크리미 질감, 말린 과일과 견과류, 은은한 시나몬 스파이스</textarea>
       </div>
 
     </div>
 
-    <!-- 하단 저장 버튼 -->
+    <!-- 하단 저장 바 -->
     <div class="bottom-bar">
       <button class="save-btn" onclick="saveTastingNote()">
         <span>💾 테이스팅 노트 저장 (0ms)</span>
       </button>
     </div>
 
-    <!-- 모달: 사용자 새 향미 추가 (커스텀 생성) -->
-    <div class="modal-backdrop" id="addFlavorModal">
-      <div class="modal-box" style="text-align:left;">
-        <h4 style="color:#E9D5FF; font-size:14px; font-weight:700; margin-bottom:4px;">➕ 새 향미 카테고리 추가</h4>
-        <p style="font-size:11px; color:var(--text-sub); margin-bottom:12px;">
-          현재 '<span id="targetParentName" style="color:var(--amber-light); font-weight:600;">Sweet</span>' 카테고리 아래에 새로운 세부 향미를 생성합니다.
+    <!-- 모달: 새 대분류 추가 -->
+    <div class="modal-backdrop" id="addTier1Modal">
+      <div class="modal-box">
+        <h4 style="color:#E9D5FF; font-size:13px; font-weight:700; margin-bottom:4px;">➕ 새 대분류 추가</h4>
+        <p style="font-size:10px; color:var(--text-sub); margin-bottom:10px;">
+          레이더 차트에 새로운 대분류 축을 생성합니다.
         </p>
 
-        <div class="form-group">
-          <label class="form-label">향미 이름</label>
-          <input type="text" class="form-input" id="newFlavorInput" placeholder="예: 군밤, 마시멜로, 메이플, 유자...">
-        </div>
+        <label class="form-label">대분류 이름 (한글/영문)</label>
+        <input type="text" class="form-input" id="newTier1Name" placeholder="예: 세이보리/감칠맛 (Savory)">
 
-        <div class="form-group">
-          <label class="form-label">초기 강도 점수 (0.0 ~ 5.0)</label>
-          <input type="range" class="intensity-slider" id="newFlavorSlider" min="0" max="50" value="40" oninput="document.getElementById('newValPreview').innerText = (this.value/10).toFixed(1)">
-          <div style="text-align:right; font-size:12px; color:var(--amber-primary); font-weight:700; margin-top:2px;">
-            <span id="newValPreview">4.0</span> 점
-          </div>
-        </div>
+        <label class="form-label">아이콘 (이모지)</label>
+        <input type="text" class="form-input" id="newTier1Icon" value="🍄" placeholder="예: 🍄, 🌿, 🍫">
 
-        <div style="background:rgba(168,85,247,0.1); border:1px solid rgba(168,85,247,0.3); border-radius:8px; padding:8px; margin-bottom:12px; font-size:10px; color:#D8B4FE; line-height:1.4;">
-          💡 생성 즉시 로컬 DB에 영속화되며, 저장 시 관리자에게 제안되어 공식 카테고리로 승격될 수 있습니다.
+        <label class="form-label">초기 강도 (0.0 ~ 10.0)</label>
+        <input type="range" class="intensity-slider" id="newTier1Slider" min="0" max="100" value="50"
+               oninput="document.getElementById('newTier1Val').innerText = (this.value/10).toFixed(1)">
+        <div style="text-align:right; font-size:11px; color:var(--amber-primary); font-weight:700; margin-bottom:10px;">
+          <span id="newTier1Val">5.0</span> / 10.0
         </div>
 
         <div style="display:flex; gap:8px;">
-          <button class="save-btn" style="flex:1; background:linear-gradient(135deg, #A855F7, #7E22CE); color:#FFF;" onclick="confirmAddCustomFlavor()">
-            <span>생성하기</span>
+          <button class="save-btn" style="flex:1; background:linear-gradient(135deg, #A855F7, #7E22CE); color:#FFF;" onclick="confirmAddTier1()">
+            <span>대분류 생성</span>
           </button>
-          <button class="modal-close-btn" style="flex:1;" onclick="closeAddFlavorModal()">취소</button>
+          <button class="modal-close-btn" style="flex:1;" onclick="closeAddTier1Modal()">취소</button>
         </div>
       </div>
     </div>
 
-    <!-- 모달: AI 음성 인식 시뮬레이션 -->
-    <div class="modal-backdrop" id="aiModal">
+    <!-- 모달: 새 소분류 추가 -->
+    <div class="modal-backdrop" id="addSubnodeModal">
       <div class="modal-box">
-        <h4 style="color:var(--amber-primary); font-size:14px; font-weight:700;">🎙️ AI 음성 시음 분석 중</h4>
-        <p style="font-size:11px; color:var(--text-sub); margin-top:2px;">말씀하신 음성을 텍스트화하고 리프별 점수를 자동 매핑합니다.</p>
-        
-        <div class="waveform-box">
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
+        <h4 style="color:#E9D5FF; font-size:13px; font-weight:700; margin-bottom:4px;">➕ 새 소분류 노드 추가</h4>
+        <p style="font-size:10px; color:var(--text-sub); margin-bottom:10px;">
+          '<span id="targetTier1Name" style="color:var(--amber-light); font-weight:600;">Sweet</span>' 섹터 안에 새 노드를 분산 배치합니다.
+        </p>
+
+        <label class="form-label">소분류 이름</label>
+        <input type="text" class="form-input" id="newSubnodeName" placeholder="예: 군밤, 마시멜로, 유자...">
+
+        <label class="form-label">초기 점수 (0.0 ~ 10.0)</label>
+        <input type="range" class="intensity-slider" id="newSubnodeSlider" min="0" max="100" value="70"
+               oninput="document.getElementById('newSubnodeVal').innerText = (this.value/10).toFixed(1)">
+        <div style="text-align:right; font-size:11px; color:var(--amber-primary); font-weight:700; margin-bottom:10px;">
+          <span id="newSubnodeVal">7.0</span> / 10.0
         </div>
 
-        <div class="transcript-text" id="transcriptOutput">"인식 대기 중..."</div>
-
-        <button class="modal-close-btn" onclick="closeAiModal()">취소</button>
-      </div>
-    </div>
-
-    <!-- 모달: 저장 완료 테이스팅 카드 뷰 -->
-    <div class="modal-backdrop" id="cardModal">
-      <div class="modal-box" style="text-align:left;">
-        <div style="text-align:center; margin-bottom:10px;">
-          <div style="font-size:26px;">🏆</div>
-          <div style="font-family:'Cinzel', serif; font-size:15px; color:var(--amber-primary);">TASTING CARD</div>
-          <p style="font-size:10px; color:var(--text-sub);">Isar 로컬 DB 저장 완료 • 새 향미 제안 큐 적재됨</p>
+        <div style="display:flex; gap:8px;">
+          <button class="save-btn" style="flex:1; background:linear-gradient(135deg, #A855F7, #7E22CE); color:#FFF;" onclick="confirmAddSubnode()">
+            <span>소분류 생성</span>
+          </button>
+          <button class="modal-close-btn" style="flex:1;" onclick="closeAddSubnodeModal()">취소</button>
         </div>
-
-        <div style="background:#090B0E; border:1px solid var(--amber-dark); border-radius:12px; padding:10px; margin-bottom:12px;">
-          <div style="font-weight:700; color:#FFF; font-size:13px;" id="cardWhiskyName">발베니 12년 더블우드</div>
-          <div style="font-size:11px; color:var(--amber-light); margin-bottom:4px;" id="cardSummaryMeta">★ 4.5 | Speyside Single Malt</div>
-          <div style="font-size:11px; color:var(--text-sub); line-height:1.4;" id="cardSummaryQuote">
-            "달콤한 바닐라와 꿀, 부드러운 셰리 오크의 풍미가 완벽한 조화를 이루는 데일리 위스키."
-          </div>
-        </div>
-
-        <button class="save-btn" style="margin-bottom:6px;" onclick="closeCardModal()">
-          <span>📱 마이 보관함으로 이동</span>
-        </button>
-        <button class="modal-close-btn" onclick="closeCardModal()">닫기</button>
       </div>
     </div>
 
@@ -938,182 +816,146 @@
 
   <script>
     // ==========================================
-    // 1. N-Depth 향미 트리 데이터 (Leaf 점수화 & 커스텀 지원)
+    // 1. 10점 척도 데이터 모델 (대분류 강도 + 소분류 분산 노드)
     // ==========================================
-    const DYNAMIC_TREES = {
+    const DATA_DOMAINS = {
       whisky: {
-        category: 'whisky',
         productName: '발베니 12년 더블우드',
         productMeta: '40.0% ABV • Speyside Single Malt',
         thumb: '🥃',
-        nodes: [
+        tier1: [
           {
-            id: 'smoky', name: '피트/스모키', en: 'Peaty', icon: '🔥', currentVal: 1.0, targetVal: 1.0,
-            leaves: [
-              { id: 'peat_peat', name: '이탄(Peat)', score: 1.0, isCustom: false },
-              { id: 'peat_smoke', name: '훈연(Smoky)', score: 1.5, isCustom: false },
-              { id: 'peat_ash', name: '재/타르', score: 0.5, isCustom: false },
-              { id: 'peat_seaweed', name: '해초/요오드', score: 1.0, isCustom: false }
+            id: 'sweet', name: '달콤함/바닐라', en: 'Sweet', icon: '🍯',
+            intensity: 7.5, currentIntensity: 7.5, isCustom: false,
+            subnodes: [
+              { id: 's_vanilla', name: '바닐라', score: 8.5, isCustom: false },
+              { id: 's_honey', name: '벌꿀', score: 9.0, isCustom: false },
+              { id: 's_caramel', name: '캐러멜', score: 6.0, isCustom: false },
+              { id: 's_toffee', name: '토피', score: 5.5, isCustom: false }
             ]
           },
           {
-            id: 'fruity', name: '과일/프루티', en: 'Fruity', icon: '🍎', currentVal: 3.2, targetVal: 3.2,
-            leaves: [
-              { id: 'fruit_apple', name: '사과/배', score: 3.5, isCustom: false },
-              { id: 'fruit_citrus', name: '감귤/시트러스', score: 2.5, isCustom: false },
-              { id: 'fruit_dried', name: '건과일/프룬', score: 4.0, isCustom: false },
-              { id: 'fruit_tropical', name: '열대과일', score: 2.8, isCustom: false }
+            id: 'woody', name: '오크/우디', en: 'Woody', icon: '🪵',
+            intensity: 6.8, currentIntensity: 6.8, isCustom: false,
+            subnodes: [
+              { id: 'w_oak', name: '새 오크', score: 7.5, isCustom: false },
+              { id: 'w_cedar', name: '삼나무', score: 6.0, isCustom: false },
+              { id: 'w_leather', name: '가죽', score: 7.0, isCustom: false }
             ]
           },
           {
-            id: 'sweet', name: '달콤함/바닐라', en: 'Sweet', icon: '🍯', currentVal: 4.3, targetVal: 4.3,
-            leaves: [
-              { id: 'sweet_vanilla', name: '바닐라(Vanilla)', score: 4.5, isCustom: false },
-              { id: 'sweet_honey', name: '벌꿀(Honey)', score: 4.8, isCustom: false },
-              { id: 'sweet_caramel', name: '캐러멜(Caramel)', score: 4.0, isCustom: false },
-              { id: 'sweet_toffee', name: '토피/버터스카치', score: 3.8, isCustom: false }
+            id: 'winey', name: '와인/셰리', en: 'Winey', icon: '🍷',
+            intensity: 6.2, currentIntensity: 6.2, isCustom: false,
+            subnodes: [
+              { id: 'wi_sherry', name: '셰리 와인', score: 8.0, isCustom: false },
+              { id: 'wi_raisin', name: '건포도', score: 6.5, isCustom: false }
             ]
           },
           {
-            id: 'floral', name: '꽃/플로럴', en: 'Floral', icon: '🌸', currentVal: 2.1, targetVal: 2.1,
-            leaves: [
-              { id: 'flor_wild', name: '야생화', score: 2.5, isCustom: false },
-              { id: 'flor_lavender', name: '라벤더', score: 1.8, isCustom: false },
-              { id: 'flor_grass', name: '풀내음/허브', score: 2.0, isCustom: false }
+            id: 'fruity', name: '과일/프루티', en: 'Fruity', icon: '🍎',
+            intensity: 5.5, currentIntensity: 5.5, isCustom: false,
+            subnodes: [
+              { id: 'f_apple', name: '사과/배', score: 6.0, isCustom: false },
+              { id: 'f_citrus', name: '시트러스', score: 4.5, isCustom: false },
+              { id: 'f_dried', name: '말린 과일', score: 7.0, isCustom: false }
             ]
           },
           {
-            id: 'woody', name: '오크/우디', en: 'Woody', icon: '🪵', currentVal: 4.0, targetVal: 4.0,
-            leaves: [
-              { id: 'wood_oak', name: '새 오크(Oak)', score: 4.2, isCustom: false },
-              { id: 'wood_charred', name: '탄 나무', score: 3.5, isCustom: false },
-              { id: 'wood_cedar', name: '삼나무/시더', score: 4.0, isCustom: false },
-              { id: 'wood_leather', name: '가죽/담뱃잎', score: 4.3, isCustom: false }
+            id: 'malty', name: '곡물/몰트', en: 'Malty', icon: '🌾',
+            intensity: 5.0, currentIntensity: 5.0, isCustom: false,
+            subnodes: [
+              { id: 'm_barley', name: '보리/맥아', score: 6.5, isCustom: false },
+              { id: 'm_biscuit', name: '비스킷', score: 5.0, isCustom: false }
             ]
           },
           {
-            id: 'spicy', name: '스파이스', en: 'Spicy', icon: '🌶️', currentVal: 2.4, targetVal: 2.4,
-            leaves: [
-              { id: 'spice_cinnamon', name: '시나몬/계피', score: 3.0, isCustom: false },
-              { id: 'spice_pepper', name: '흑후추', score: 2.0, isCustom: false },
-              { id: 'spice_ginger', name: '생강/정향', score: 2.2, isCustom: false }
+            id: 'spicy', name: '스파이스', en: 'Spicy', icon: '🌶️',
+            intensity: 4.0, currentIntensity: 4.0, isCustom: false,
+            subnodes: [
+              { id: 'sp_cinnamon', name: '시나몬', score: 5.5, isCustom: false },
+              { id: 'sp_pepper', name: '흑후추', score: 3.5, isCustom: false }
             ]
           },
           {
-            id: 'malty', name: '곡물/몰트', en: 'Malty', icon: '🌾', currentVal: 3.0, targetVal: 3.0,
-            leaves: [
-              { id: 'malt_barley', name: '보리/맥아', score: 3.5, isCustom: false },
-              { id: 'malt_biscuit', name: '비스킷/토스트', score: 3.0, isCustom: false },
-              { id: 'malt_nut', name: '견과류/아몬드', score: 2.5, isCustom: false }
+            id: 'floral', name: '꽃/플로럴', en: 'Floral', icon: '🌸',
+            intensity: 3.5, currentIntensity: 3.5, isCustom: false,
+            subnodes: [
+              { id: 'fl_wild', name: '들꽃', score: 4.0, isCustom: false },
+              { id: 'fl_herb', name: '풀내음', score: 3.0, isCustom: false }
             ]
           },
           {
-            id: 'winey', name: '와인/셰리', en: 'Winey', icon: '🍷', currentVal: 3.6, targetVal: 3.6,
-            leaves: [
-              { id: 'wine_sherry', name: '셰리 와인', score: 4.2, isCustom: false },
-              { id: 'wine_raisin', name: '건포도/무화과', score: 3.8, isCustom: false },
-              { id: 'wine_berry', name: '다크베리', score: 2.8, isCustom: false }
+            id: 'smoky', name: '피트/스모키', en: 'Peaty', icon: '🔥',
+            intensity: 1.5, currentIntensity: 1.5, isCustom: false,
+            subnodes: [
+              { id: 'sm_smoke', name: '훈연', score: 2.0, isCustom: false },
+              { id: 'sm_peat', name: '이탄', score: 1.0, isCustom: false }
             ]
           }
         ]
       },
       wine: {
-        category: 'wine',
         productName: '샤또 마고 2018',
         productMeta: '13.5% ABV • Bordeaux Grand Cru',
         thumb: '🍷',
-        nodes: [
+        tier1: [
           {
-            id: 'black_fruit', name: '블랙프루트', en: 'Black Fruit', icon: '🫐', currentVal: 4.4, targetVal: 4.4,
-            leaves: [
-              { id: 'bf_cassis', name: '카시스', score: 4.8, isCustom: false },
-              { id: 'bf_plum', name: '자두', score: 4.0, isCustom: false },
-              { id: 'bf_blackberry', name: '블랙베리', score: 4.5, isCustom: false }
+            id: 'black_fruit', name: '블랙프루트', en: 'Black Fruit', icon: '🫐',
+            intensity: 8.5, currentIntensity: 8.5, isCustom: false,
+            subnodes: [
+              { id: 'bf_cassis', name: '카시스', score: 9.0, isCustom: false },
+              { id: 'bf_blackberry', name: '블랙베리', score: 8.0, isCustom: false }
             ]
           },
           {
-            id: 'red_fruit', name: '레드프루트', en: 'Red Fruit', icon: '🍒', currentVal: 3.5, targetVal: 3.5,
-            leaves: [
-              { id: 'rf_cherry', name: '체리', score: 3.8, isCustom: false },
-              { id: 'rf_raspberry', name: '라즈베리', score: 3.2, isCustom: false }
+            id: 'oak_wine', name: '프렌치오크', en: 'French Oak', icon: '🪵',
+            intensity: 7.5, currentIntensity: 7.5, isCustom: false,
+            subnodes: [
+              { id: 'ow_cedar', name: '시더우드', score: 8.0, isCustom: false },
+              { id: 'ow_vanilla', name: '바닐라빈', score: 7.0, isCustom: false }
             ]
           },
           {
-            id: 'floral_wine', name: '플로럴/바이올렛', en: 'Floral', icon: '🌸', currentVal: 4.0, targetVal: 4.0,
-            leaves: [
-              { id: 'fl_violet', name: '제비꽃', score: 4.5, isCustom: false },
-              { id: 'fl_rose', name: '장미꽃잎', score: 3.5, isCustom: false }
+            id: 'floral_wine', name: '플로럴', en: 'Floral', icon: '🌸',
+            intensity: 7.0, currentIntensity: 7.0, isCustom: false,
+            subnodes: [
+              { id: 'fw_violet', name: '제비꽃', score: 8.5, isCustom: false }
             ]
           },
           {
-            id: 'oak_wine', name: '프렌치오크', en: 'French Oak', icon: '🪵', currentVal: 4.1, targetVal: 4.1,
-            leaves: [
-              { id: 'ow_cedar', name: '시더우드', score: 4.3, isCustom: false },
-              { id: 'ow_vanilla', name: '바닐라빈', score: 4.0, isCustom: false }
-            ]
-          },
-          {
-            id: 'earthy', name: '어시/미네랄', en: 'Earthy', icon: '⛰️', currentVal: 3.2, targetVal: 3.2,
-            leaves: [
-              { id: 'ea_graphite', name: '흑연/자갈', score: 3.5, isCustom: false },
-              { id: 'ea_truffle', name: '트러플/흙', score: 3.0, isCustom: false }
-            ]
-          },
-          {
-            id: 'spice_wine', name: '스파이스', en: 'Spicy', icon: '🌿', currentVal: 2.5, targetVal: 2.5,
-            leaves: [
-              { id: 'sw_clove', name: '정향', score: 2.5, isCustom: false },
-              { id: 'sw_licorice', name: '감초', score: 2.5, isCustom: false }
+            id: 'earthy', name: '어시/미네랄', en: 'Earthy', icon: '⛰️',
+            intensity: 6.0, currentIntensity: 6.0, isCustom: false,
+            subnodes: [
+              { id: 'ea_graphite', name: '흑연', score: 6.5, isCustom: false }
             ]
           }
         ]
       },
       coffee: {
-        category: 'coffee',
         productName: '에티오피아 예가체프 G1',
         productMeta: 'Washed • Specialty Single Origin',
         thumb: '☕',
-        nodes: [
+        tier1: [
           {
-            id: 'citrus', name: '시트러스', en: 'Citrus', icon: '🍋', currentVal: 4.5, targetVal: 4.5,
-            leaves: [
-              { id: 'cit_bergamot', name: '베르가못', score: 4.8, isCustom: false },
-              { id: 'cit_lemon', name: '레몬그라스', score: 4.2, isCustom: false }
+            id: 'jasmine', name: '자스민/꽃', en: 'Floral', icon: '🌼',
+            intensity: 9.2, currentIntensity: 9.2, isCustom: false,
+            subnodes: [
+              { id: 'j_flower', name: '자스민', score: 9.5, isCustom: false },
+              { id: 'j_tea', name: '백차', score: 8.8, isCustom: false }
             ]
           },
           {
-            id: 'jasmine', name: '자스민/꽃', en: 'Floral', icon: '🌼', currentVal: 4.9, targetVal: 4.9,
-            leaves: [
-              { id: 'jas_flower', name: '자스민', score: 5.0, isCustom: false },
-              { id: 'jas_tea', name: '백차/오렌지꽃', score: 4.8, isCustom: false }
+            id: 'citrus', name: '시트러스', en: 'Citrus', icon: '🍋',
+            intensity: 8.5, currentIntensity: 8.5, isCustom: false,
+            subnodes: [
+              { id: 'c_bergamot', name: '베르가못', score: 9.0, isCustom: false }
             ]
           },
           {
-            id: 'stone_fruit', name: '스톤프루트', en: 'Stone Fruit', icon: '🍑', currentVal: 3.8, targetVal: 3.8,
-            leaves: [
-              { id: 'sf_peach', name: '복숭아', score: 4.0, isCustom: false },
-              { id: 'sf_apricot', name: '살구', score: 3.6, isCustom: false }
-            ]
-          },
-          {
-            id: 'sweet_coffee', name: '사탕수수', en: 'Sweetness', icon: '🍯', currentVal: 4.0, targetVal: 4.0,
-            leaves: [
-              { id: 'sc_sugar', name: '흑당/사탕수수', score: 4.2, isCustom: false },
-              { id: 'sc_honey', name: '꿀', score: 3.8, isCustom: false }
-            ]
-          },
-          {
-            id: 'acidity', name: '브라이트산미', en: 'Acidity', icon: '✨', currentVal: 4.4, targetVal: 4.4,
-            leaves: [
-              { id: 'ac_malic', name: '사과산', score: 4.5, isCustom: false },
-              { id: 'ac_citric', name: '구연산', score: 4.3, isCustom: false }
-            ]
-          },
-          {
-            id: 'body_coffee', name: '티라이크바디', en: 'Tea Body', icon: '🫖', currentVal: 3.2, targetVal: 3.2,
-            leaves: [
-              { id: 'bc_tea', name: '홍차 질감', score: 3.5, isCustom: false },
-              { id: 'bc_clean', name: '클린컵', score: 3.0, isCustom: false }
+            id: 'acidity', name: '브라이트산미', en: 'Acidity', icon: '✨',
+            intensity: 8.0, currentIntensity: 8.0, isCustom: false,
+            subnodes: [
+              { id: 'ac_malic', name: '사과산', score: 8.2, isCustom: false }
             ]
           }
         ]
@@ -1121,161 +963,144 @@
     };
 
     let currentDomain = 'whisky';
-    let currentNodes = DYNAMIC_TREES.whisky.nodes;
-    let selectedParentIndex = 2; // Default: Sweet
+    let currentTier1List = DATA_DOMAINS.whisky.tier1;
+    let selectedTier1Index = 0;
     let canvas, ctx;
 
     window.onload = () => {
       canvas = document.getElementById('radarCanvas');
       ctx = canvas.getContext('2d');
-      setupCanvasEvents();
-      recalculateParentScores();
-      updateLeafScoringPanel();
+      renderDialCarousel();
+      updateScoringEditor();
       startRenderLoop();
     };
 
     // ==========================================
-    // 2. 리프 점수 기반 상위 대분류 평균 자동 집계
+    // 2. 중앙 원형 롤링 다이얼 캐러셀 렌더링
     // ==========================================
-    function recalculateParentScores() {
-      currentNodes.forEach(node => {
-        if (node.leaves && node.leaves.length > 0) {
-          const sum = node.leaves.reduce((acc, leaf) => acc + leaf.score, 0);
-          const avg = sum / node.leaves.length;
-          node.targetVal = Math.round(avg * 10) / 10;
-        }
+    function renderDialCarousel() {
+      const track = document.getElementById('dialTrack');
+      track.innerHTML = '';
+
+      currentTier1List.forEach((t1, idx) => {
+        const card = document.createElement('div');
+        card.className = `dial-card ${idx === selectedTier1Index ? 'active' : ''} ${t1.isCustom ? 'custom' : ''}`;
+        card.onclick = () => selectTier1(idx);
+        card.innerHTML = `
+          <span class="icon">${t1.icon}</span>
+          <span class="name">${t1.name.split('/')[0]}</span>
+          <span class="score">${t1.intensity.toFixed(1)}</span>
+        `;
+        track.appendChild(card);
       });
-      updateDominantBadge();
+
+      // [+ 새 대분류 추가] 카드
+      const addCard = document.createElement('div');
+      addCard.className = 'dial-card-add';
+      addCard.onclick = openAddTier1Modal;
+      addCard.innerHTML = `
+        <span style="font-size:16px;">➕</span>
+        <span style="font-size:9px; font-weight:700;">새 대분류</span>
+      `;
+      track.appendChild(addCard);
     }
 
-    function updateDominantBadge() {
-      const sorted = [...currentNodes].sort((a, b) => b.targetVal - a.targetVal);
-      document.getElementById('dominantFlavorBadge').innerText = `${sorted[0].name.split('/')[0]} 지배적 (${sorted[0].targetVal.toFixed(1)})`;
+    function selectTier1(idx) {
+      selectedTier1Index = idx;
+      renderDialCarousel();
+      updateScoringEditor();
+
+      // 해당 카드로 스크롤 센터링
+      const track = document.getElementById('dialTrack');
+      const card = track.children[idx];
+      if (card) {
+        track.scrollTo({
+          left: card.offsetLeft - track.offsetWidth / 2 + card.offsetWidth / 2,
+          behavior: 'smooth'
+        });
+      }
     }
 
     // ==========================================
-    // 3. 리프 세부 향미 패널 렌더링
+    // 3. 하단 점수 편집기 업데이트 (대분류 & 소분류)
     // ==========================================
-    function updateLeafScoringPanel() {
-      const parent = currentNodes[selectedParentIndex];
-      document.getElementById('parentIcon').innerText = parent.icon;
-      document.getElementById('parentName').innerText = `${parent.name} (${parent.en})`;
-      document.getElementById('parentScoreVal').innerText = parent.targetVal.toFixed(1);
+    function updateScoringEditor() {
+      const t1 = currentTier1List[selectedTier1Index];
+      document.getElementById('currentParentLabel').innerHTML = `${t1.icon} ${t1.name} (${t1.en || 'Custom'})`;
+      document.getElementById('parentScoreText').innerText = `${t1.intensity.toFixed(1)} / 10.0`;
+      document.getElementById('parentSlider').value = Math.round(t1.intensity * 10);
 
-      const container = document.getElementById('leafListContainer');
-      container.innerHTML = '';
+      const list = document.getElementById('subnodesList');
+      list.innerHTML = '';
 
-      parent.leaves.forEach((leaf, idx) => {
+      t1.subnodes.forEach((sub, sIdx) => {
         const item = document.createElement('div');
-        item.className = `leaf-card-item ${leaf.isCustom ? 'custom' : ''}`;
+        item.className = `subnode-item ${sub.isCustom ? 'custom' : ''}`;
         item.innerHTML = `
-          <div class="leaf-info-row">
-            <div class="leaf-name-wrap">
-              <span>${leaf.name}</span>
-              ${leaf.isCustom ? '<span class="custom-badge">사용자 생성</span>' : ''}
-            </div>
-            <div class="leaf-score-val" id="leafScore_${idx}">${leaf.score.toFixed(1)} / 5.0</div>
+          <div class="subnode-header">
+            <span>${sub.name} ${sub.isCustom ? '<span style="color:#D8B4FE; font-size:9px;">(커스텀)</span>' : ''}</span>
+            <span style="color:var(--amber-primary); font-weight:700;" id="subScoreText_${sIdx}">${sub.score.toFixed(1)} / 10.0</span>
           </div>
-          <div class="leaf-slider-wrap">
-            <span style="font-size:9px; color:var(--text-muted)">0.0</span>
-            <input type="range" class="leaf-slider" min="0" max="50" value="${Math.round(leaf.score * 10)}" 
-                   oninput="onLeafSliderChange(${idx}, this.value)">
-            <span style="font-size:9px; color:var(--text-muted)">5.0</span>
+          <div class="intensity-slider-wrap">
+            <span style="font-size:8px; color:var(--text-muted);">0</span>
+            <input type="range" class="intensity-slider" min="0" max="100" value="${Math.round(sub.score * 10)}"
+                   oninput="onSubnodeSliderChange(${sIdx}, this.value)">
+            <span style="font-size:8px; color:var(--text-muted);">10</span>
           </div>
         `;
-        container.appendChild(item);
+        list.appendChild(item);
       });
     }
 
-    // 리프 슬라이더 조작 시 상위 휠 실시간 연동
-    function onLeafSliderChange(leafIdx, rawVal) {
+    function onParentSliderChange(rawVal) {
       const val = parseFloat(rawVal) / 10;
-      const parent = currentNodes[selectedParentIndex];
-      parent.leaves[leafIdx].score = val;
-      document.getElementById(`leafScore_${leafIdx}`).innerText = `${val.toFixed(1)} / 5.0`;
+      currentTier1List[selectedTier1Index].intensity = val;
+      document.getElementById('parentScoreText').innerText = `${val.toFixed(1)} / 10.0`;
+      renderDialCarousel();
+    }
 
-      recalculateParentScores();
-      document.getElementById('parentScoreVal').innerText = parent.targetVal.toFixed(1);
+    function onSubnodeSliderChange(sIdx, rawVal) {
+      const val = parseFloat(rawVal) / 10;
+      currentTier1List[selectedTier1Index].subnodes[sIdx].score = val;
+      document.getElementById(`subScoreText_${sIdx}`).innerText = `${val.toFixed(1)} / 10.0`;
     }
 
     // ==========================================
-    // 4. 사용자 커스텀 새 향미 생성 모달 & 로직
-    // ==========================================
-    function openAddFlavorModal() {
-      const parent = currentNodes[selectedParentIndex];
-      document.getElementById('targetParentName').innerText = `${parent.icon} ${parent.name}`;
-      document.getElementById('newFlavorInput').value = '';
-      document.getElementById('newFlavorSlider').value = 40;
-      document.getElementById('newValPreview').innerText = '4.0';
-      document.getElementById('addFlavorModal').classList.add('show');
-    }
-
-    function closeAddFlavorModal() {
-      document.getElementById('addFlavorModal').classList.remove('show');
-    }
-
-    function confirmAddCustomFlavor() {
-      const name = document.getElementById('newFlavorInput').value.trim();
-      if (!name) {
-        alert('향미 이름을 입력해 주세요!');
-        return;
-      }
-
-      const score = parseFloat(document.getElementById('newFlavorSlider').value) / 10;
-      const parent = currentNodes[selectedParentIndex];
-
-      // 새 리프 노드 생성
-      const newLeaf = {
-        id: `custom_${Date.now()}`,
-        name: name,
-        score: score,
-        isCustom: true
-      };
-
-      parent.leaves.push(newLeaf);
-      recalculateParentScores();
-      updateLeafScoringPanel();
-      closeAddFlavorModal();
-
-      showToast(`✨ 새 향미 '${name}' 생성 완료! (로컬 DB 즉시 영속화)`);
-    }
-
-    // ==========================================
-    // 5. 60fps 캔버스 렌더링 루프 (모션 보간)
+    // 4. 10점 척도 레이더 차트 & 소분류 분산 노드 렌더링 (60fps)
     // ==========================================
     function startRenderLoop() {
       function frame() {
-        currentNodes.forEach(node => {
-          const diff = node.targetVal - node.currentVal;
+        currentTier1List.forEach(t1 => {
+          const diff = t1.intensity - t1.currentIntensity;
           if (Math.abs(diff) > 0.01) {
-            node.currentVal += diff * 0.15;
+            t1.currentIntensity += diff * 0.15;
           } else {
-            node.currentVal = node.targetVal;
+            t1.currentIntensity = t1.intensity;
           }
         });
 
-        drawRadarChart();
+        drawScatterRadarChart();
         requestAnimationFrame(frame);
       }
       requestAnimationFrame(frame);
     }
 
-    function drawRadarChart() {
+    function drawScatterRadarChart() {
       const w = canvas.width;
       const h = canvas.height;
       const centerX = w / 2;
       const centerY = h / 2;
-      const maxRadius = w * 0.36;
-      const count = currentNodes.length;
+      const maxR = w * 0.38;
+      const count = currentTier1List.length;
 
       ctx.clearRect(0, 0, w, h);
 
-      // 1. 방사형 동심원 격자 (0.0 ~ 5.0 레벨)
-      for (let level = 1; level <= 5; level++) {
+      // 1. 10점 척도 동심원 (2, 4, 6, 8, 10)
+      for (let level = 2; level <= 10; level += 2) {
         ctx.beginPath();
-        ctx.strokeStyle = level === 5 ? 'rgba(245, 158, 11, 0.3)' : 'rgba(255, 255, 255, 0.07)';
-        ctx.lineWidth = 1.5;
-        const curR = (maxRadius / 5) * level;
+        ctx.strokeStyle = level === 10 ? 'rgba(245, 158, 11, 0.35)' : 'rgba(255, 255, 255, 0.07)';
+        ctx.lineWidth = 1.2;
+        const curR = (maxR / 10) * level;
 
         for (let i = 0; i < count; i++) {
           const angle = (Math.PI * 2 / count) * i - Math.PI / 2;
@@ -1288,44 +1113,46 @@
         ctx.stroke();
       }
 
-      // 2. 대분류 축 라인 & 라벨
+      // 2. 대분류 섹터 부채꼴 배경 & 축
       for (let i = 0; i < count; i++) {
         const angle = (Math.PI * 2 / count) * i - Math.PI / 2;
-        const x = centerX + maxRadius * Math.cos(angle);
-        const y = centerY + maxRadius * Math.sin(angle);
+        const nextAngle = (Math.PI * 2 / count) * (i + 1) - Math.PI / 2;
+        const t1 = currentTier1List[i];
 
+        // 축 라인
         ctx.beginPath();
-        ctx.strokeStyle = i === selectedParentIndex ? 'rgba(245, 158, 11, 0.8)' : 'rgba(255, 255, 255, 0.12)';
-        ctx.lineWidth = i === selectedParentIndex ? 2.5 : 1;
+        ctx.strokeStyle = i === selectedTier1Index ? 'rgba(245, 158, 11, 0.8)' : 'rgba(255, 255, 255, 0.12)';
+        ctx.lineWidth = i === selectedTier1Index ? 2 : 1;
         ctx.moveTo(centerX, centerY);
-        ctx.lineTo(x, y);
+        ctx.lineTo(centerX + maxR * Math.cos(angle), centerY + maxR * Math.sin(angle));
         ctx.stroke();
 
-        const labelR = maxRadius + 36;
+        // 선택된 대분류 섹터 은은한 조명 배경
+        if (i === selectedTier1Index) {
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          ctx.arc(centerX, centerY, (maxR / 10) * t1.currentIntensity, angle, nextAngle);
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(245, 158, 11, 0.12)';
+          ctx.fill();
+        }
+
+        // 라벨
+        const labelR = maxR + 28;
         const lx = centerX + labelR * Math.cos(angle);
         const ly = centerY + labelR * Math.sin(angle);
-
-        ctx.font = i === selectedParentIndex ? 'bold 20px Pretendard' : '500 16px Pretendard';
-        ctx.fillStyle = i === selectedParentIndex ? '#F59E0B' : '#94A3B8';
+        ctx.font = i === selectedTier1Index ? 'bold 18px Pretendard' : '500 14px Pretendard';
+        ctx.fillStyle = i === selectedTier1Index ? '#F59E0B' : '#94A3B8';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`${currentNodes[i].icon} ${currentNodes[i].en}`, lx, ly);
-
-        // 선택된 축 외곽 링 강조
-        if (i === selectedParentIndex) {
-          ctx.beginPath();
-          ctx.arc(centerX, centerY, maxRadius + 14, angle - 0.3, angle + 0.3);
-          ctx.strokeStyle = 'rgba(245, 158, 11, 0.7)';
-          ctx.lineWidth = 3.5;
-          ctx.stroke();
-        }
+        ctx.fillText(`${t1.icon} ${t1.name.split('/')[0]}`, lx, ly);
       }
 
-      // 3. 향미 데이터 폴리곤 (모핑)
+      // 3. 대분류 메인 폴리곤 (앰버 글로우)
       ctx.beginPath();
       for (let i = 0; i < count; i++) {
         const angle = (Math.PI * 2 / count) * i - Math.PI / 2;
-        const r = (maxRadius / 5) * currentNodes[i].currentVal;
+        const r = (maxR / 10) * currentTier1List[i].currentIntensity;
         const x = centerX + r * Math.cos(angle);
         const y = centerY + r * Math.sin(angle);
         if (i === 0) ctx.moveTo(x, y);
@@ -1333,152 +1160,165 @@
       }
       ctx.closePath();
 
-      const grad = ctx.createRadialGradient(centerX, centerY, 10, centerX, centerY, maxRadius);
-      grad.addColorStop(0, 'rgba(245, 158, 11, 0.65)');
-      grad.addColorStop(1, 'rgba(220, 38, 38, 0.25)');
+      const grad = ctx.createRadialGradient(centerX, centerY, 10, centerX, centerY, maxR);
+      grad.addColorStop(0, 'rgba(245, 158, 11, 0.55)');
+      grad.addColorStop(1, 'rgba(220, 38, 38, 0.2)');
       ctx.fillStyle = grad;
       ctx.fill();
 
       ctx.strokeStyle = '#FBBF24';
-      ctx.lineWidth = 3.5;
-      ctx.shadowColor = 'rgba(245, 158, 11, 0.8)';
-      ctx.shadowBlur = 12;
+      ctx.lineWidth = 3;
       ctx.stroke();
-      ctx.shadowBlur = 0;
 
-      // 4. 정점 노드
+      // 4. [핵심] 각 대분류 섹터 내 소분류 분산 노드(Distributed Subnodes) & 연결망 렌더링
       for (let i = 0; i < count; i++) {
-        const angle = (Math.PI * 2 / count) * i - Math.PI / 2;
-        const r = (maxRadius / 5) * currentNodes[i].currentVal;
-        const x = centerX + r * Math.cos(angle);
-        const y = centerY + r * Math.sin(angle);
+        const t1 = currentTier1List[i];
+        const subCount = t1.subnodes.length;
+        if (subCount === 0) continue;
 
-        ctx.beginPath();
-        ctx.arc(x, y, i === selectedParentIndex ? 8 : 5, 0, Math.PI * 2);
-        ctx.fillStyle = i === selectedParentIndex ? '#FFF' : '#F59E0B';
-        ctx.fill();
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        const baseAngle = (Math.PI * 2 / count) * i - Math.PI / 2;
+        const sectorSpan = (Math.PI * 2 / count);
+
+        let prevSubX = null, prevSubY = null;
+
+        t1.subnodes.forEach((sub, sIdx) => {
+          // 섹터 각도 범위 안에서 서브 각도 분산
+          const subAngle = baseAngle + (sectorSpan / (subCount + 1)) * (sIdx + 1);
+          // 소분류 점수에 따른 반경 거리
+          const subR = (maxR / 10) * sub.score;
+          const subX = centerX + subR * Math.cos(subAngle);
+          const subY = centerY + subR * Math.sin(subAngle);
+
+          // 인접 소분류 노드 간 네온 연결선
+          if (prevSubX !== null) {
+            ctx.beginPath();
+            ctx.strokeStyle = i === selectedTier1Index ? 'rgba(253, 230, 138, 0.6)' : 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 1.2;
+            ctx.setLineDash([3, 3]);
+            ctx.moveTo(prevSubX, prevSubY);
+            ctx.lineTo(subX, subY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+          prevSubX = subX;
+          prevSubY = subY;
+
+          // 소분류 발광 도트
+          ctx.beginPath();
+          ctx.arc(subX, subY, i === selectedTier1Index ? 4.5 : 3, 0, Math.PI * 2);
+          ctx.fillStyle = i === selectedTier1Index ? (sub.isCustom ? '#D8B4FE' : '#FFF') : '#F59E0B';
+          ctx.fill();
+          ctx.strokeStyle = '#000';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          // 선택된 대분류일 경우 소분류 이름 미니 라벨 표시
+          if (i === selectedTier1Index) {
+            ctx.font = '600 11px Pretendard';
+            ctx.fillStyle = '#FDE68A';
+            ctx.fillText(sub.name, subX, subY - 8);
+          }
+        });
       }
     }
 
-    // 캔버스 축 선택
-    function setupCanvasEvents() {
-      canvas.addEventListener('click', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-        const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+    // ==========================================
+    // 5. 모달 인터랙션 (대분류 추가 / 소분류 추가)
+    // ==========================================
+    function openAddTier1Modal() {
+      document.getElementById('newTier1Name').value = '';
+      document.getElementById('newTier1Icon').value = '🍄';
+      document.getElementById('newTier1Slider').value = 50;
+      document.getElementById('newTier1Val').innerText = '5.0';
+      document.getElementById('addTier1Modal').classList.add('show');
+    }
+    function closeAddTier1Modal() {
+      document.getElementById('addTier1Modal').classList.remove('show');
+    }
+    function confirmAddTier1() {
+      const name = document.getElementById('newTier1Name').value.trim();
+      if (!name) { alert('대분류 이름을 입력해 주세요!'); return; }
+      const icon = document.getElementById('newTier1Icon').value.trim() || '✨';
+      const intensity = parseFloat(document.getElementById('newTier1Slider').value) / 10;
 
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const dx = x - centerX;
-        const dy = y - centerY;
+      const newT1 = {
+        id: `t1_custom_${Date.now()}`,
+        name: name,
+        en: 'Custom',
+        icon: icon,
+        intensity: intensity,
+        currentIntensity: intensity,
+        isCustom: true,
+        subnodes: [
+          { id: `sub_${Date.now()}_1`, name: `${name.split('/')[0]} 1`, score: intensity, isCustom: true }
+        ]
+      };
 
-        let angle = Math.atan2(dy, dx) + Math.PI / 2;
-        if (angle < 0) angle += Math.PI * 2;
+      currentTier1List.push(newT1);
+      selectedTier1Index = currentTier1List.length - 1;
+      renderDialCarousel();
+      updateScoringEditor();
+      closeAddTier1Modal();
+      showToast(`✨ 새 대분류 '${name}' 생성 완료! (로컬 0ms 영속화)`);
+    }
 
-        const count = currentNodes.length;
-        const slice = (Math.PI * 2) / count;
-        selectedParentIndex = Math.round(angle / slice) % count;
+    function openAddSubnodeModal() {
+      const t1 = currentTier1List[selectedTier1Index];
+      document.getElementById('targetTier1Name').innerText = `${t1.icon} ${t1.name}`;
+      document.getElementById('newSubnodeName').value = '';
+      document.getElementById('newSubnodeSlider').value = 70;
+      document.getElementById('newSubnodeVal').innerText = '7.0';
+      document.getElementById('addSubnodeModal').classList.add('show');
+    }
+    function closeAddSubnodeModal() {
+      document.getElementById('addSubnodeModal').classList.remove('show');
+    }
+    function confirmAddSubnode() {
+      const name = document.getElementById('newSubnodeName').value.trim();
+      if (!name) { alert('소분류 이름을 입력해 주세요!'); return; }
+      const score = parseFloat(document.getElementById('newSubnodeSlider').value) / 10;
+      const t1 = currentTier1List[selectedTier1Index];
 
-        updateLeafScoringPanel();
+      t1.subnodes.push({
+        id: `sub_custom_${Date.now()}`,
+        name: name,
+        score: score,
+        isCustom: true
       });
+
+      updateScoringEditor();
+      closeAddSubnodeModal();
+      showToast(`✨ 소분류 '${name}' (${score.toFixed(1)}점) 추가 완료!`);
     }
 
     // 도메인 전환
-    function loadDynamicTree(domain, pillElement) {
+    function switchDomain(domain, pill) {
       currentDomain = domain;
       document.querySelectorAll('.domain-pill').forEach(el => el.classList.remove('active'));
-      pillElement.classList.add('active');
+      pill.classList.add('active');
 
-      const data = DYNAMIC_TREES[domain];
-      currentNodes = data.nodes;
-      selectedParentIndex = 0;
+      const d = DATA_DOMAINS[domain];
+      currentTier1List = d.tier1;
+      selectedTier1Index = 0;
 
-      document.getElementById('productThumb').innerText = data.thumb;
-      document.getElementById('productTitle').innerText = data.productName;
-      document.getElementById('productMeta').innerText = data.productMeta;
+      document.getElementById('productThumb').innerText = d.thumb;
+      document.getElementById('productTitle').innerText = d.productName;
+      document.getElementById('productMeta').innerText = d.productMeta;
 
-      recalculateParentScores();
-      updateLeafScoringPanel();
-      showToast(`⚡ '${domain.toUpperCase()}' 동적 트리 주입 완료`);
-    }
-
-    function switchMode(mode) {
-      document.getElementById('btnStandard').classList.toggle('active', mode === 'standard');
-      document.getElementById('btnExpert').classList.toggle('active', mode === 'expert');
-      document.getElementById('expertFields').classList.toggle('show', mode === 'expert');
-    }
-
-    function setRating(score) {
-      const stars = document.querySelectorAll('#ratingContainer .star');
-      stars.forEach((star, idx) => {
-        star.classList.toggle('filled', idx < score);
-      });
-      document.getElementById('ratingScore').innerText = `${score}.0 / 5.0`;
+      renderDialCarousel();
+      updateScoringEditor();
+      showToast(`⚡ '${domain.toUpperCase()}' 동적 트리 로드 완료`);
     }
 
     function showToast(msg) {
       const toast = document.getElementById('toastMsg');
       toast.innerText = msg;
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2400);
-    }
-
-    // AI 음성 시뮬레이션
-    function startVoiceSimulation() {
-      const modal = document.getElementById('aiModal');
-      const transcript = document.getElementById('transcriptOutput');
-      modal.classList.add('show');
-      transcript.innerHTML = "<span style='color:var(--text-sub);'>🎙️ 실시간 음성 스트림 분석 중...</span>";
-
-      const script = "발베니 12년을 마셔보니 꿀 향이 아주 강하고(4.8점), 바닐라와 캐러멜 풍미가 부드럽게 감돕니다. 새 오크의 은은함과 건포도 셰리 풍미가 훌륭합니다.";
-
-      let i = 0;
-      const interval = setInterval(() => {
-        if (i < script.length) {
-          transcript.innerText = script.slice(0, i + 3);
-          i += 3;
-        } else {
-          clearInterval(interval);
-          setTimeout(() => {
-            const sweetNode = currentNodes.find(f => f.id === 'sweet');
-            if (sweetNode) {
-              sweetNode.leaves.find(l => l.id === 'sweet_honey').score = 4.8;
-              sweetNode.leaves.find(l => l.id === 'sweet_vanilla').score = 4.5;
-              sweetNode.leaves.find(l => l.id === 'sweet_caramel').score = 4.0;
-            }
-
-            document.getElementById('noteNose').value = "화사한 바닐라, 달콤한 벌꿀, 건포도와 셰리 오크의 풍부한 아로마";
-            document.getElementById('notePalate').value = "부드럽고 크리미한 질감, 말린 과일과 견과류, 은은한 시나몬 스파이스";
-            document.getElementById('noteFinish').value = "따뜻하고 스파이시하며 오래 남는 오크와 달콤한 꿀의 여운";
-
-            recalculateParentScores();
-            updateLeafScoringPanel();
-            closeAiModal();
-            showToast('✨ AI가 음성을 분석하여 세부 리프 점수를 자동 완성했습니다!');
-          }, 500);
-        }
-      }, 35);
-    }
-
-    function closeAiModal() {
-      document.getElementById('aiModal').classList.remove('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
     }
 
     function saveTastingNote() {
-      const hasCustom = currentNodes.some(n => n.leaves.some(l => l.isCustom));
-      if (hasCustom) {
-        showToast('💾 로컬 저장 완료 & 🌟 새 향미 제안 큐 적재됨 (관리자 승격 예정)');
-      } else {
-        showToast('💾 Isar DB 로컬 영속화 완료 (오프라인 0ms)');
-      }
-      document.getElementById('cardModal').classList.add('show');
-    }
-
-    function closeCardModal() {
-      document.getElementById('cardModal').classList.remove('show');
+      showToast('💾 Isar DB 로컬 저장 완료 & 🌟 새 향미 제안 큐 적재됨 (0ms)');
     }
   </script>
 </body>

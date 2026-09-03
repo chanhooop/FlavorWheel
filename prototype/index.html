@@ -1250,11 +1250,16 @@
       if (currentFlowPhase === 'WHEEL_NAV') {
         phaseBadge.classList.remove('zoomed');
         phaseText.innerText = `1단계: 대분류 점수 [${t1.intensity.toFixed(1)}/10]`;
-        hintText.innerText = '👆 클릭 후 위아래로 움직여 점수를 정하고 탭하여 소분류로 진입';
+        if (t1.subnodes.length > 0) {
+          hintText.innerText = '👆 점수 영역(소분류 쐐기)을 탭하면 소분류 세부 수정으로 확대됩니다';
+        } else {
+          hintText.innerText = '👆 클릭 후 위아래로 움직여 점수를 정하고 탭하여 소분류로 진입';
+        }
         btnZoomOut.classList.remove('show');
         addTagBtn.classList.remove('show');
 
-        if (t1.intensity > 0) {
+        // [핵심] 소분류가 아직 없는 대분류만 탭 뱃지 표시, 이미 기입된 대분류는 뱃지 없이 영역 탭으로 진입!
+        if (t1.intensity > 0 && t1.subnodes.length === 0) {
           tapBadge.classList.add('show');
           tapScore.innerText = `${t1.intensity.toFixed(1)}점`;
         } else {

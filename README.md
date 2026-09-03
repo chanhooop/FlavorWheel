@@ -1,240 +1,257 @@
-# 🥃 Flavor Wheel (플레이버 휠) - 제품 요구사항 정의서 & 설계서 (PRD)
+# 🥃 Flavor Wheel (플레이버 휠) - 제품 기획 및 기술 설계서 (PRD & System Spec)
 
-> **"향과 맛 애호가들을 위한 스마트 테이스팅 노트 & 위스키 큐레이션 플랫폼"**  
-> *"복잡한 위스키 향미를 한눈에 보이는 휠로 기록하고, AI 음성 요약으로 손쉽게 테이스팅을 완성하세요."*
+> **"향과 맛 애호가들을 위한 Offline-First 스마트 테이스팅 노트 & 동적 플레이버 휠 플랫폼"**  
+> *"API 기반 동적 계층형 향미 트리, 유려한 60fps 인터랙티브 모션, 그리고 완벽한 오프라인 경험을 제공합니다."*
 
 ---
 
 ## 📌 목차 (Table of Contents)
-1. [프로젝트 개요 및 비전](#1-프로젝트-개요-및-비전)
-2. [타겟 유저 페르소나 및 핵심 시나리오](#2-타겟-유저-페르소나-및-핵심-시나리오)
-3. [시스템 아키텍처](#3-시스템-아키텍처)
+1. [프로젝트 비전 및 핵심 설계 철학](#1-프로젝트-비전-및-핵심-설계-철학)
+2. [핵심 아키텍처 규칙 4대 원칙](#2-핵심-아키텍처-규칙-4대-원칙)
+   - 2.1 [Offline-First 영속성 및 동기화 규칙](#21-offline-first-영속성-및-동기화-규칙)
+   - 2.2 [동적 계층형 데이터 구조 (N-Depth Flavor Tree)](#22-동적-계층형-데이터-구조-n-depth-flavor-tree)
+   - 2.3 [표현 방식 및 멀티링 렌더링 규칙](#23-표현-방식-및-멀티링-렌더링-규칙)
+   - 2.4 [UI/UX 모션 & 인터랙션 디자인 시스템](#24-uiux-모션--인터랙션-디자인-시스템)
+3. [시스템 아키텍처 다이어그램](#3-시스템-아키텍처-다이어그램)
 4. [상세 기능 요구사항 명세 (FRD)](#4-상세-기능-요구사항-명세-frd)
-5. [플레이버 휠(향미 데이터) 모델 명세](#5-플레이버-휠향미-데이터-모델-명세)
-6. [UI / UX 디자인 가이드라인](#6-ui--ux-디자인-가이드라인)
-7. [데이터베이스 스키마 설계](#7-데이터베이스-스키마-설계)
-8. [개발 로드맵 & 마일스톤](#8-개발-로드맵--마일스톤)
-9. [인터랙티브 프로토타입 안내](#9-인터랙티브-프로토타입-안내)
+5. [데이터베이스 스키마 및 JSON 스펙](#5-데이터베이스-스키마-및-json-스펙)
+6. [단계별 로드맵 & 마일스톤](#6-단계별-로드맵--마일스톤)
+7. [인터랙티브 프로토타입 안내](#7-인터랙티브-프로토타입-안내)
 
 ---
 
-## 1. 프로젝트 개요 및 비전
+## 1. 프로젝트 비전 및 핵심 설계 철학
 
-### 1.1 배경 및 문제 정의 (Problem Statement)
-* **어려운 향미 기록**: 위스키 시음 시 느껴지는 향과 맛(Nose, Palate, Finish)은 매우 복잡하며, 텍스트로만 남기면 나중에 직관적으로 회상하기 어렵습니다.
-* **입력의 번거로움**: 잔을 들고 시음하는 도중 스마트폰 키보드로 긴 테이스팅 노트를 타이핑하는 것은 시음의 몰입을 방해합니다.
-* **파편화된 정보**: 위스키 정보, 도수, 캐스크 정보 및 다른 이들의 평점이 여러 웹사이트에 흩어져 있어 접근성이 떨어집니다.
+위스키를 비롯한 주류 및 미식(와인, 커피, 맥주 등) 애호가들이 장소와 네트워크 환경에 구애받지 않고 시음 경험을 정밀하게 기록하고 탐색할 수 있는 플랫폼을 구축합니다.
 
-### 1.2 솔루션 및 핵심 가치 (Value Proposition)
-1. **인터랙티브 원형 플레이버 휠 (Interactive Flavor Wheel)**:  
-   8대 핵심 향미 축을 다이얼 형태로 직접 터치/드래그하여 즉각적이고 아름다운 레이더 차트로 시각화.
-2. **AI 음성 테이스팅 노트 (AI Voice-to-Note)**:  
-   시음 중 자연스럽게 말한 음성을 온디바이스/클라우드 AI가 분석하여 향미 수치와 Nose/Palate/Finish 항목으로 자동 분류 및 구조화.
-3. **듀얼 모드 테이스팅 폼 (Dual-Mode Tasting)**:  
-   입문자를 위한 깔끔한 **'표준 모드'**와 매니아를 위한 물 첨가 전후(With Water), 색상(Color) 비교 등을 지원하는 **'전문가 모드'** 제공.
-4. **신뢰도 높은 위스키 DB & 큐레이션**:  
-   전문 플랫폼 크롤링 데이터를 기반으로 한 즉각적인 위스키 검색 및 개인화된 향미 기반 추천.
+* **No Blank Screen (항상 즉시 동작)**: 지하 바(Bar)나 위스키 축제 등 네트워크가 불안정한 환경에서도 100% 정상 작동하는 **Offline-First**.
+* **Zero Hardcoded Domain (확장 가능한 구조)**: 위스키뿐 아니라 향후 와인/커피로의 확장을 위해 모든 향미 분류 체계와 UI 구조는 **API를 통한 동적 트리 주입 방식**을 채택.
+* **Fluid Micro-Interactions (감각적 사용자 경험)**: 정적인 차트가 아닌, 손끝의 터치에 실시간으로 반응하고 부드럽게 모핑(Morphing)되는 **60fps 모션 시스템**.
 
 ---
 
-## 2. 타겟 유저 페르소나 및 핵심 시나리오
+## 2. 핵심 아키텍처 규칙 4대 원칙
+
+### 2.1 Offline-First 영속성 및 동기화 규칙
 
 ```mermaid
-journey
-    title 위스키 테이스팅 유저 저니 (User Journey)
-    section 시음 시작
-      위스키 검색 및 선택: 5: 유저
-      표준/전문가 모드 선택: 4: 유저
-    section 기록 및 입력
-      음성 녹음 시작 (AI 시연): 5: 유저
-      AI 자동 요약 및 휠 수치 반영: 5: 시스템
-      원형 휠 다이얼 미세 조정: 4: 유저
-    section 저장 및 회상
-      테이스팅 카드 완성 및 저장: 5: 유저
-      마이 노트 보관함에서 차트 비교: 5: 유저
+flowchart TD
+    UserAction["사용자 액션 (노트 작성/수정)"] --> LocalDB[("로컬 DB (Isar/Drift)\nSource of Truth")]
+    LocalDB --> OptimisticUI["UI 즉각 반영 (0ms 지연)"]
+    LocalDB --> SyncQueue["오프라인 동기화 큐 (Sync Queue)"]
+    
+    NetworkDetector{"네트워크 연결 상태"}
+    SyncQueue --> NetworkDetector
+    NetworkDetector -- "Online" --> ServerSync["서버 REST API 동기화\n(Last-Write-Wins 타임스탬프)"]
+    NetworkDetector -- "Offline" --> PersistQueue["로컬 영속 큐 유지"]
+    ServerSync -- "성공" --> MarkSynced["동기화 완료 상태 마킹"]
 ```
 
-* **페르소나 A (위스키 입문자 / 2030 직장인)**
-  * *"내가 마신 위스키가 어떤 느낌이었는지 직관적으로 기억하고 친구들에게 멋지게 공유하고 싶다."*
-  * 원형 플레이버 휠을 가볍게 터치해 시각적인 테이스팅 카드를 생성.
-* **페르소나 B (위스키 매니아 / 바텐더)**
-  * *"원액(Neat) 상태와 가수(With Water) 후의 향미 변화, 색상, 배치(Batch) 번호까지 꼼꼼하게 아카이빙하고 싶다."*
-  * 전문가 모드를 활성화하여 정밀한 테이스팅 노트 기록.
+1. **Local DB = Single Source of Truth**:  
+   모든 읽기/쓰기 작업은 로컬 데이터베이스(`Isar` 또는 `Drift`)를 최우선으로 통과합니다.
+2. **낙관적 업데이트 (Optimistic Updates)**:  
+   서버 응답을 기다리지 않고 로컬에 즉시 커밋 후 UI에 반영하며, 백그라운드 워커가 변경분을 서버로 동기화합니다.
+3. **충돌 해결 전략 (Conflict Resolution)**:  
+   `updated_at` 타임스탬프 기반의 **Last-Write-Wins (LWW)** 원칙을 기본으로 적용합니다.
+4. **ETag & 버전 해시 기반 델타 캐싱**:  
+   향미 마스터 트리는 앱 최초 실행 시 로컬에 저장되며, 서버 호출 시 ETag 헤더를 비교하여 변경사항이 있을 때만 증분 다운로드(`304 Not Modified` 처리)합니다.
 
 ---
 
-## 3. 시스템 아키텍처
+### 2.2 동적 계층형 데이터 구조 (N-Depth Flavor Tree)
+
+하드코딩된 열거형(Enum) 대신, 깊이(Depth) 제한 없는 **재귀적 복합체(Composite Node) JSON 스키마**를 통해 API에서 향미 분류 체계를 동적으로 수신합니다.
+
+#### 📌 향미 트리 JSON 스펙 예시
+```json
+{
+  "category": "whisky",
+  "version": "1.0.4",
+  "hash": "a8f3b9c2",
+  "nodes": [
+    {
+      "id": "sweet_vanilla",
+      "name": "달콤함/바닐라",
+      "nameEn": "Sweet & Vanilla",
+      "icon": "🍯",
+      "colorHex": "#F59E0B",
+      "depth": 1,
+      "intensity": 0.0,
+      "children": [
+        {
+          "id": "vanilla",
+          "name": "바닐라",
+          "depth": 2,
+          "children": [
+            { "id": "creme_brulee", "name": "크렘 브륄레", "depth": 3 },
+            { "id": "custard", "name": "커스터드", "depth": 3 }
+          ]
+        },
+        {
+          "id": "honey_syrup",
+          "name": "벌꿀/시럽",
+          "depth": 2,
+          "children": [
+            { "id": "wildflower_honey", "name": "야생화 꿀", "depth": 3 },
+            { "id": "maple_syrup", "name": "메이플 시럽", "depth": 3 }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+* **동적 카테고리 엔드포인트**:  
+  `GET /api/v1/flavor-trees?category={whisky|wine|coffee}` 파라미터에 따라 완전히 다른 도메인의 향미 트리와 테마 색상을 클라이언트에 실시간 주입.
+
+---
+
+### 2.3 표현 방식 및 멀티링 렌더링 규칙
+
+```mermaid
+graph LR
+    Tier1["대분류 Tier-1 (8대 레이더 휠)"] -- "터치 / 포커스" --> Tier2["중분류 Tier-2 (방사형 멀티링 확장)"]
+    Tier2 -- "세부 터치" --> Tier3["소분류 Tier-3 (아로마 태그 칩)"]
+    Tier3 -- "강도 조절 (0.0~5.0)" --> RealtimeMorph["레이더 차트 실시간 면적 모핑"]
+```
+
+1. **하이브리드 멀티링 (Multi-ring / Sunburst & Radar) 휠**:
+   * **Outer Base**: 1단계 대분류 8개 축(Peaty, Fruity, Sweet, Floral, Woody, Spicy, Malty, Winey)의 레이더 차트 다이얼.
+   * **Expanding Radial Ring**: 대분류 섹터를 터치하면 2~3단계 하위 세부 향미가 바깥쪽으로 부드럽게 방사형(Radial)으로 펼쳐지며 확장.
+2. **동적 가중치 전파 (Hierarchical Weight Propagation)**:
+   * 하위 소분류(Tier-3) 아로마를 선택하거나 강도를 높이면 부모 대분류(Tier-1)의 총 강도 수치에 가중치가 실시간 자동 반영.
+
+---
+
+### 2.4 UI/UX 모션 & 인터랙션 디자인 시스템
+
+모든 UI 상태 전이와 차트 변형에는 불연속적인 점프(Pop-in) 없이 정교한 모션 토큰과 이징 곡선을 적용합니다.
+
+```
++------------------+-------------------------------------------------------+
+| Motion Token     | Duration & Purpose                                    |
++------------------+-------------------------------------------------------+
+| durationMicro    | 100ms : 터치 탭, 햅틱 연동, 버튼 눌림 피드백          |
+| durationFast     | 150ms : 태그 칩 활성화, 토글 스위치, 체크박스         |
+| durationNormal   | 300ms : 폼 확장/축소, 탭 전환, 바텀시트 슬라이드      |
+| durationMorph    | 500ms : 레이더 폴리곤 정점 모핑, 멀티링 방사형 펼침   |
++------------------+-------------------------------------------------------+
+```
+
+* **표준 이징 곡선**:
+  * **진입 및 펼침**: `Curves.easeOutCubic` (초기 속도감 후 부드러운 안착)
+  * **형태 변형 (Morphing)**: `Curves.easeInOutCubic` (자연스러운 유기적 팽창)
+* **CustomPainter 정점 보간 (Lerp)**:
+  * 드래그 및 슬라이더 조작 시 캔버스 렌더러가 이전 정점 좌표와 목표 좌표를 선형 보간(`lerpDouble`)하여 60fps의 매끄러운 형태 변형 보장.
+
+---
+
+## 3. 시스템 아키텍처 다이어그램
 
 ```mermaid
 graph TB
-    subgraph ClientLayer ["Client Layer (Flutter Cross-Platform)"]
-        UI_Home["홈 / 위스키 검색"]
-        UI_Tasting["테이스팅 노트 작성 (표준/전문가)"]
-        UI_Wheel["인터랙티브 원형 휠 다이얼"]
-        UI_AI["AI 음성 녹음 & 시각 피드백"]
-        UI_Archive["마이 테이스팅 카드 보관함"]
+    subgraph Client ["Flutter Client (Offline-First Architecture)"]
+        UI["UI Layer (Widgets / CustomPainter / Motion System)"]
+        State["State Layer (Riverpod / ViewModel)"]
+        SyncEngine["Sync Engine (Background Sync & Queue)"]
+        LocalRepository["Local Repository (Isar / Drift DB)"]
+
+        UI <--> State
+        State <--> LocalRepository
+        LocalRepository <--> SyncEngine
     end
 
-    subgraph LogicLayer ["Application Logic Layer"]
-        StateManager["상태 관리 (Provider / Riverpod)"]
-        ChartEngine["레이더 차트 & 휠 렌더링 엔진"]
-        AudioPipeline["음성 스트리밍 & STT 파이프라인"]
-        LocalCache["로컬 오프라인 캐시 (Hive/SQLite)"]
+    subgraph RemoteBackend ["Cloud Backend Services"]
+        Gateway["API Gateway / Auth"]
+        TreeService["Dynamic Flavor Tree Service (ETag Caching)"]
+        NoteService["Tasting Note Sync API"]
+        LLMWorker["AI Voice Parsing & Structuring Engine"]
+        CrawlerEngine["Whisky DB Crawler & Indexer"]
     end
 
-    subgraph ServiceLayer ["Backend & AI Service Layer"]
-        API_Gateway["API Gateway / Auth (OAuth 2.0)"]
-        Whisky_Search["위스키 검색 & 색인 엔진"]
-        Recommend_Engine["플레이버 벡터 유사도 추천 엔진"]
-        AI_Summarizer["LLM 테이스팅 구조화 엔진"]
-        Crawler_Worker["위스키 크롤러 & 전처리 워커"]
-    end
-
-    ClientLayer --> LogicLayer
-    LogicLayer <--> ServiceLayer
+    SyncEngine <--> Gateway
+    Gateway --> TreeService
+    Gateway --> NoteService
+    Gateway --> LLMWorker
+    NoteService --> CrawlerEngine
 ```
 
 ---
 
 ## 4. 상세 기능 요구사항 명세 (FRD)
 
-| ID | 기능 분류 | 기능명 | 우선순위 | 상세 설명 |
+| ID | 기능 영역 | 세부 기능 | 우선순위 | 상세 기술 명세 |
 | :--- | :--- | :--- | :---: | :--- |
-| **FR-01** | **테이스팅 노트** | **인터랙티브 원형 휠** | **P1** | 8개 향미 카테고리를 원형 다이얼로 조작하여 1~5점 강도 실시간 조정 및 레이더 차트 렌더링 |
-| **FR-02** | **테이스팅 노트** | **표준 모드 작성** | **P1** | 위스키 기본 정보, Nose/Palate/Finish 텍스트 메모, 종합 평점(1~5★) 입력 |
-| **FR-03** | **테이스팅 노트** | **전문가 모드 전환** | **P1** | 토글 스위치를 통해 색상(Color), 투명도, 가수(With Water) 전/후 비교 기록 활성화 |
-| **FR-04** | **AI 기능** | **음성 녹음 및 AI 요약** | **P2** | 음성 입력을 받아 LLM이 Nose, Palate, Finish 및 8대 향미 강도를 자동 파싱하여 폼 자동 입력 |
-| **FR-05** | **위스키 검색** | **위스키 DB 검색** | **P1** | 이름(영문/국문), 증류소, 캐스크 타입, 알코올 도수(ABV) 기반 실시간 자동완성 검색 |
-| **FR-06** | **보관함** | **테이스팅 카드 뷰** | **P1** | 작성된 노트를 아름다운 카드 형태로 조회, 이미지 저장 및 SNS 공유 기능 |
-| **FR-07** | **추천** | **향미 유사도 추천** | **P2** | 사용자의 휠 프로필과 유사한 풍미를 지닌 다른 위스키 큐레이션 |
-| **FR-08** | **데이터 수집** | **크롤러 및 전처리** | **P1** | 위스키베이스, 데일리샷 등 주요 플랫폼 데이터 주기적 수집 및 정규화 |
+| **FR-01** | **Offline-First** | **로컬 저장 및 동기화** | **P1** | 로컬 Isar DB에 노트 즉시 영속화, 네트워크 복구 시 자동 백그라운드 큐 동기화 |
+| **FR-02** | **동적 휠 엔진** | **N-Depth 멀티링 휠** | **P1** | API JSON 트리를 파싱하여 8대 축 + 하위 세부 향미 방사형 렌더링 및 0~5점 조절 |
+| **FR-03** | **모션 시스템** | **60fps 정점 모핑** | **P1** | 휠 조작 및 하위 태그 선택 시 500ms easeOutCubic으로 부드러운 폴리곤 모핑 |
+| **FR-04** | **테이스팅 폼** | **표준 / 전문가 모드** | **P1** | 토글 시 300ms 애니메이션으로 색상(Color), 가수(With Water), 바디감 폼 확장 |
+| **FR-05** | **AI 음성 파이프라인**| **음성 구조화 요약** | **P2** | 음성 스트림 인식 후 LLM이 Nose/Palate/Finish 및 휠 수치를 자동 파싱 |
+| **FR-06** | **위스키 검색** | **오프라인 캐시 검색** | **P1** | 기기에 캐시된 위스키 마스터 데이터를 기반으로 즉각적인 오프라인 자동완성 검색 |
+| **FR-07** | **테이스팅 카드** | **카드 시각화 & 공유** | **P1** | 작성된 노트를 완성형 카드 뷰로 렌더링 및 이미지/SNS 내보내기 |
 
 ---
 
-## 5. 플레이버 휠(향미 데이터) 모델 명세
-
-위스키 테이스팅의 국제 표준(SWA/SMWS 향미 분류)을 기반으로 모바일에 최적화된 **8대 핵심 향미 축**을 정의합니다:
-
-```mermaid
-pie title Flavor Wheel 8대 핵심 축
-    "피트 / 스모키 (Peaty & Smoky)" : 12.5
-    "과일 / 프루티 (Fruity)" : 12.5
-    "달콤함 / 바닐라 (Sweet & Vanilla)" : 12.5
-    "꽃 / 플로럴 (Floral)" : 12.5
-    "오크 / 우디 (Oak & Woody)" : 12.5
-    "스파이스 / 향신료 (Spicy)" : 12.5
-    "곡물 / 몰트 (Cereal & Malty)" : 12.5
-    "와인 / 셰리 (Winey & Sherry)" : 12.5
-```
-
-### 8대 향미 카테고리 및 세부 아로마
-1. **🔥 피트/스모키 (Peaty & Smoky)**: 이탄 향, 훈연향, 재, 타르, 요오드, 해초
-2. **🍎 과일/프루티 (Fruity)**: 사과, 배, 감귤(시트러스), 건과일, 베리, 열대과일
-3. **🍯 달콤함/바닐라 (Sweet & Vanilla)**: 바닐라, 꿀, 캐러멜, 토피, 버터스카치, 초콜릿
-4. **🌸 꽃/플로럴 (Floral)**: 들꽃, 라벤더, 장미, 풀내음, 허브, 제비꽃
-5. **🪵 오크/우디 (Oak & Woody)**: 새 오크, 탄 나무, 삼나무, 가죽, 담뱃잎
-6. **🌶️ 스파이스/향신료 (Spicy)**: 계피(시나몬), 흑후추, 정향, 육두구, 생강
-7. **🌾 곡물/몰트 (Cereal & Malty)**: 보리, 비스킷, 토스트, 효모, 견과류
-8. **🍷 와인/셰리 (Winey & Sherry)**: 건포도, 무화과, 프룬, 포트와인, 다크베리
-
-* **강도 스케일**: 0 (느껴지지 않음) ~ 5 (매우 강렬함)
-
----
-
-## 6. UI / UX 디자인 가이드라인
-
-* **Color Palette**:
-  * **Background Dark**: `#0E1117` (Deep Obsidian Black)
-  * **Card Surface**: `#161B22` / Glassmorphism (`rgba(255,255,255,0.05)`)
-  * **Primary Accent (Whisky Amber)**: `#E5A93C` ~ `#F59E0B`
-  * **Secondary Glow (Sherry Ruby)**: `#D97706` / `#B45309`
-  * **Text Primary**: `#F8FAFC` / **Text Secondary**: `#94A3B8`
-  * **Accent Neon (Active Wheel)**: `#FBBF24`
-* **Typography**:
-  * Headings: Modern Sans-Serif (Pretendard / Inter), Bold 700
-  * Body: Regular 400 / Medium 500, High Legibility
-* **Interactive Principles**:
-  * 원형 휠 다이얼 터치 시 즉각적인 햅틱 & 실시간 레이더 면적 팽창 애니메이션.
-  * AI 음성 녹음 시 유려한 음파(Waveform) 펄스 효과 제공.
-
----
-
-## 7. 데이터베이스 스키마 설계
+## 5. 데이터베이스 스키마 및 JSON 스펙
 
 ```mermaid
 erDiagram
-    USERS ||--o{ TASTING_NOTES : writes
-    WHISKIES ||--o{ TASTING_NOTES : reviewed_in
-    TASTING_NOTES ||--|| FLAVOR_PROFILES : has
+    LOCAL_TASTING_NOTE ||--|| LOCAL_FLAVOR_TREE : contains
+    LOCAL_TASTING_NOTE ||--o{ SYNC_QUEUE : tracked_in
 
-    USERS {
-        uuid id PK
-        string email
-        string nickname
-        string profile_image
-        datetime created_at
-    }
-
-    WHISKIES {
-        uuid id PK
-        string name_en
-        string name_ko
-        string distillery
-        string country
-        string category
-        float abv
-        string cask_type
-        string image_url
-        float avg_rating
-    }
-
-    TASTING_NOTES {
-        uuid id PK
-        uuid user_id FK
-        uuid whisky_id FK
+    LOCAL_TASTING_NOTE {
+        string id PK
+        string user_id
+        string whisky_id
+        string whisky_name
         string mode "STANDARD | EXPERT"
         float rating
         string nose_note
         string palate_note
         string finish_note
-        string color "EXPERT ONLY"
-        string with_water_note "EXPERT ONLY"
+        string color
+        string with_water
         string voice_transcript
-        datetime tasted_at
+        datetime created_at
+        datetime updated_at
+        bool is_synced
     }
 
-    FLAVOR_PROFILES {
-        uuid id PK
-        uuid note_id FK
-        int peaty "0-5"
-        int fruity "0-5"
-        int sweet "0-5"
-        int floral "0-5"
-        int woody "0-5"
-        int spicy "0-5"
-        int malty "0-5"
-        int winey "0-5"
+    LOCAL_FLAVOR_TREE {
+        string category PK
+        string version
+        string tree_json "N-Depth Composite JSON"
+        datetime cached_at
+    }
+
+    SYNC_QUEUE {
+        int id PK
+        string entity_id
+        string action "CREATE | UPDATE | DELETE"
+        string payload_json
+        datetime queued_at
+        int retry_count
     }
 ```
 
 ---
 
-## 8. 개발 로드맵 & 마일스톤
+## 6. 단계별 로드맵 & 마일스톤
 
-| 주차 | 기간 | 주요 목표 및 산출물 | 상태 |
+| 단계 | 마일스톤 | 산출물 및 검증 기준 | 상태 |
 | :--- | :--- | :--- | :---: |
-| **1주차** | 06.24 ~ 06.28 | • 요구사항 정의서(PRD) 및 아키텍처 수립<br>• 인터랙티브 HTML 프로토타입 개발<br>• 크롤링 PoC | 🟢 **완료** |
-| **2주차** | 06.29 ~ 07.03 | • Flutter 프로젝트 기반 UI 프레임워크 구축<br>• 인터랙티브 플레이버 휠 커스텀 페인터 개발<br>• 테이스팅 노트 로컬 CRUD (Hive) | ⚪ 예정 |
-| **3주차** | 07.04 ~ 07.08 | • 위스키 검색 API 연동 및 DB 색인화<br>• 음성 STT & LLM 요약 파이프라인 연동 | ⚪ 예정 |
-| **4주차** | 07.09 ~ 07.15 | • 플레이버 유사도 기반 위스키 추천 기능<br>• UI/UX 폴리싱, 테스트 및 베타 배포 | ⚪ 예정 |
+| **1단계** | **설계 & 프로토타입** | • PRD 및 아키텍처 규칙 확립<br>• 동적 N-Depth 멀티링 휠 HTML 프로토타입 | 🟢 **완료** |
+| **2단계** | **Flutter 기반 엔진** | • Isar 로컬 DB 및 Sync Engine 구축<br>• CustomPainter 기반 60fps 멀티링 휠 위젯 개발 | ⚪ 예정 |
+| **3단계** | **동적 API & AI 연동** | • Dynamic Flavor Tree API 연동 (ETag)<br>• 음성 STT & LLM 요약 자동 완성 파이프라인 | ⚪ 예정 |
+| **4단계** | **검색/추천 & 배포** | • 위스키 색인 오프라인 검색 엔진<br>• 플레이버 벡터 유사도 추천 및 베타 배포 | ⚪ 예정 |
 
 ---
 
-## 9. 인터랙티브 프로토타입 안내
+## 7. 인터랙티브 프로토타입 안내
 
-프로젝트 내 `prototype/index.html` 파일로 실제 동작하는 모바일 프로토타입이 구현되어 있습니다. 브라우저에서 바로 실행하여 아래 기능들을 직접 체험할 수 있습니다:
+프로젝트 내 [prototype/index.html](file:///Users/chanholee/Desktop/project/FlavorWheelProject/prototype/index.html)에서 위 규칙이 모두 반영된 모바일 프로토타입을 즉시 테스트하실 수 있습니다:
 
-1. **원형 휠 다이얼 인터랙션**: 8대 향미를 드래그하여 실시간 차트 변형
-2. **표준 ↔ 전문가 모드 전환**: 탭 클릭으로 상세 분석 폼 확장
-3. **가상 AI 음성 녹음 시연**: 마이크 버튼을 누르면 AI가 음성을 분석해 폼 자동 완성
-4. **테이스팅 카드 저장 & 시각화**: 기록 완료 후 카드 형태 뷰 확인
+* **동적 트리 시뮬레이션**: API로부터 계층형 JSON을 받아 대분류(Tier-1) 및 하위 세부 향미(Tier-2/3)를 방사형으로 펼치는 인터랙션
+* **60fps 모션 토큰**: 휠 조작 및 태그 선택 시 부드러운 면적 모핑과 방사형 펼침 애니메이션
+* **Offline-First 시뮬레이터**: 로컬 즉시 저장 피드백 및 모드 전환

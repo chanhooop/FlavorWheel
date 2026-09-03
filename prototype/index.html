@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flavor Wheel - Tasting Note Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #090B0E;
+      --surface-dark: #12161F;
+      --card-bg: rgba(22, 27, 34, 0.85);
+      --card-border: rgba(245, 158, 11, 0.15);
+      --amber-primary: #F59E0B;
+      --amber-glow: rgba(245, 158, 11, 0.35);
+      --amber-light: #FDE68A;
+      --amber-dark: #B45309;
+      --ruby-sherry: #DC2626;
+      --text-main: #F8FAFC;
+      --text-sub: #94A3B8;
+      --text-muted: #64748B;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: radial-gradient(circle at top center, #1E1B18 0%, #090B0E 70%);
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 16px;
+    }
+
+    /* 모바일 디바이스 프레임 */
+    .device-container {
+      width: 100%;
+      max-width: 420px;
+      height: 880px;
+      background: var(--surface-dark);
+      border-radius: 44px;
+      border: 6px solid #2A2F3D;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8),
+                  0 0 40px rgba(245, 158, 11, 0.1);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 노치 / 상태바 */
+    .status-bar {
+      height: 44px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-sub);
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .dynamic-island {
+      width: 100px;
+      height: 24px;
+      background: #000;
+      border-radius: 20px;
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    /* 상단 앱바 */
+    .app-header {
+      padding: 8px 20px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .header-btn {
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+    .header-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+    }
+
+    .app-title {
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, #FFF 30%, var(--amber-primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* 모드 스위처 (Standard / Expert) */
+    .mode-switch-wrapper {
+      display: flex;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 3px;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .mode-tab {
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 16px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .mode-tab.active {
+      background: var(--amber-primary);
+      color: #000;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+    }
+
+    /* 스크롤 컨텐츠 영역 */
+    .content-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px 90px;
+      scroll-behavior: smooth;
+    }
+    .content-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .content-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    /* 위스키 인포 카드 */
+    .whisky-card {
+      background: linear-gradient(135deg, rgba(22, 27, 34, 0.95), rgba(30, 36, 48, 0.7));
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .whisky-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #2D1B08, #18120A);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .whisky-meta h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #FFF;
+      line-height: 1.2;
+      margin-bottom: 3px;
+    }
+    .whisky-meta p {
+      font-size: 12px;
+      color: var(--amber-light);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .whisky-badge {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      color: var(--amber-primary);
+    }
+
+    /* AI 음성 배너 */
+    .ai-assist-box {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(220, 38, 38, 0.04) 100%);
+      border: 1px dashed rgba(245, 158, 11, 0.35);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+    }
+    .ai-assist-box.recording {
+      border-color: var(--ruby-sherry);
+      background: rgba(220, 38, 38, 0.1);
+      animation: pulse-border 1.5s infinite;
+    }
+    @keyframes pulse-border {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+      50% { box-shadow: 0 0 12px 4px rgba(220, 38, 38, 0.2); }
+    }
+
+    .ai-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .ai-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--amber-light);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ai-desc {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    .voice-mic-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--amber-primary), var(--amber-dark));
+      border: none;
+      color: #000;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+      transition: transform 0.2s, background 0.3s;
+      flex-shrink: 0;
+    }
+    .voice-mic-btn:hover {
+      transform: scale(1.06);
+    }
+    .voice-mic-btn.active {
+      background: linear-gradient(135deg, #EF4444, #B91C1C);
+      color: #FFF;
+      animation: mic-pulse 1s infinite alternate;
+    }
+    @keyframes mic-pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.12); }
+    }
+
+    /* 섹션 공통 헤더 */
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-title span.badge {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--amber-primary);
+    }
+
+    /* 인터랙티브 플레이버 휠 섹션 */
+    .wheel-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 16px 14px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+
+    .wheel-chart-container {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      margin: 0 auto;
+      user-select: none;
+    }
+
+    #radarCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .wheel-instruction {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-top: 8px;
+    }
+
+    /* 선택된 향미 조정 패널 */
+    .flavor-adjust-panel {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .active-flavor-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--amber-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .intensity-slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .intensity-slider {
+      flex: 1;
+      accent-color: var(--amber-primary);
+      cursor: pointer;
+      height: 6px;
+    }
+    .intensity-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--amber-primary);
+      width: 24px;
+      text-align: right;
+    }
+
+    .sub-tags-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+    .sub-tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-sub);
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .sub-tag.selected {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: var(--amber-primary);
+      color: var(--amber-light);
+    }
+
+    /* 테이스팅 입력 폼 */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+    .form-label .icon {
+      margin-right: 4px;
+    }
+    .form-input, .form-textarea {
+      width: 100%;
+      background: rgba(14, 17, 23, 0.8);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--amber-primary);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);
+    }
+    .form-textarea {
+      resize: none;
+      min-height: 54px;
+      line-height: 1.4;
+    }
+
+    /* 별점 입력 */
+    .rating-wrap {
+      display: flex;
+      gap: 8px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .star {
+      color: #334155;
+      transition: color 0.15s;
+    }
+    .star.filled {
+      color: var(--amber-primary);
+      text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }
+
+    /* 전문가 모드 전용 필드 컨테이너 */
+    #expertFields {
+      display: none;
+      background: rgba(220, 38, 38, 0.03);
+      border: 1px solid rgba(220, 38, 38, 0.2);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    #expertFields.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 하단 액션 버튼 */
+    .bottom-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 14px 20px;
+      background: linear-gradient(to top, var(--surface-dark) 80%, transparent 100%);
+      border-top: 1px solid var(--border-subtle);
+      z-index: 10;
+    }
+
+    .save-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #F59E0B, #D97706);
+      border: none;
+      color: #090B0E;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+      transition: all 0.2s;
+    }
+    .save-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+    }
+
+    /* 모달 (AI 음성 시뮬레이션 / 완료 카드) */
+    .modal-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.show {
+      display: flex;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .modal-box {
+      width: 100%;
+      background: var(--surface-dark);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
+      text-align: center;
+    }
+
+    .waveform-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      height: 48px;
+      margin: 16px 0;
+    }
+    .wave-bar {
+      width: 4px;
+      height: 12px;
+      background: var(--amber-primary);
+      border-radius: 2px;
+      animation: wave 1s ease-in-out infinite alternate;
+    }
+    .wave-bar:nth-child(2) { animation-delay: 0.15s; }
+    .wave-bar:nth-child(3) { animation-delay: 0.3s; }
+    .wave-bar:nth-child(4) { animation-delay: 0.45s; }
+    .wave-bar:nth-child(5) { animation-delay: 0.6s; }
+    .wave-bar:nth-child(6) { animation-delay: 0.75s; }
+    @keyframes wave {
+      from { height: 10px; opacity: 0.4; }
+      to { height: 42px; opacity: 1; }
+    }
+
+    .transcript-text {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--amber-light);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--amber-primary);
+      text-align: left;
+      margin-bottom: 16px;
+      min-height: 60px;
+    }
+
+    .modal-close-btn {
+      width: 100%;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    /* 카드 뷰 스타일 */
+    .card-preview-header {
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      color: var(--amber-primary);
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="device-container">
+    <!-- 상태 바 -->
+    <div class="status-bar">
+      <span>09:41</span>
+      <div class="dynamic-island"></div>
+      <span>5G 􀛨 100%</span>
+    </div>
+
+    <!-- 앱 바 -->
+    <div class="app-header">
+      <button class="header-btn" title="Back">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+
+      <span class="app-title">TASTING NOTE</span>
+
+      <!-- 모드 스위처 (Standard / Expert) -->
+      <div class="mode-switch-wrapper">
+        <button class="mode-tab active" id="btnStandard" onclick="switchMode('standard')">표준</button>
+        <button class="mode-tab" id="btnExpert" onclick="switchMode('expert')">전문가</button>
+      </div>
+    </div>
+
+    <!-- 스크롤 컨텐츠 -->
+    <div class="content-scroll">
+      
+      <!-- 위스키 정보 카드 -->
+      <div class="whisky-card">
+        <div class="whisky-thumb">🥃</div>
+        <div class="whisky-meta">
+          <h3 id="whiskyTitle">발베니 12년 더블우드</h3>
+          <p>
+            <span>40.0% ABV</span> • <span>Speyside</span>
+            <span class="whisky-badge">Single Malt</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- AI 음성 기록 시뮬레이션 배너 -->
+      <div class="ai-assist-box" id="aiAssistBox">
+        <div class="ai-info">
+          <div class="ai-title">
+            <span>✨ AI 음성 테이스팅 도우미</span>
+          </div>
+          <div class="ai-desc">말씀하시면 노트를 자동으로 정리해 드려요</div>
+        </div>
+        <button class="voice-mic-btn" id="voiceBtn" onclick="startVoiceSimulation()" title="AI 음성 인식 시뮬레이션 시작">
+          🎙️
+        </button>
+      </div>
+
+      <!-- 인터랙티브 플레이버 휠 섹션 -->
+      <div class="wheel-section">
+        <div class="section-title">
+          <span>인터랙티브 플레이버 휠</span>
+          <span class="badge" id="dominantFlavorBadge">달콤함 & 오크 지배적</span>
+        </div>
+
+        <div class="wheel-chart-container">
+          <canvas id="radarCanvas" width="560" height="560"></canvas>
+        </div>
+        <p class="wheel-instruction">💡 휠의 각 영역을 터치하거나 아래 슬라이더로 강도를 조절하세요</p>
+
+        <!-- 선택된 향미 조절기 -->
+        <div class="flavor-adjust-panel">
+          <div class="active-flavor-name">
+            <span id="flavorLabel">🍯 달콤함 / 바닐라 (Sweet)</span>
+            <span class="intensity-val" id="flavorVal">4 / 5</span>
+          </div>
+          <div class="intensity-slider-wrap">
+            <span style="font-size:11px; color:var(--text-muted)">0</span>
+            <input type="range" class="intensity-slider" id="flavorSlider" min="0" max="5" value="4" oninput="updateActiveFlavor(this.value)">
+            <span style="font-size:11px; color:var(--text-muted)">5</span>
+          </div>
+          <!-- 세부 아로마 서브 태그 -->
+          <div class="sub-tags-wrap" id="subTagsWrap">
+            <span class="sub-tag selected" onclick="toggleTag(this)">바닐라</span>
+            <span class="sub-tag selected" onclick="toggleTag(this)">꿀</span>
+            <span class="sub-tag" onclick="toggleTag(this)">캐러멜</span>
+            <span class="sub-tag" onclick="toggleTag(this)">토피</span>
+            <span class="sub-tag" onclick="toggleTag(this)">초콜릿</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 종합 평점 -->
+      <div class="form-group">
+        <div class="form-label">
+          <span>종합 평점 (Overall Rating)</span>
+          <span id="ratingScore" style="color:var(--amber-primary); font-weight:700;">4.5 / 5.0</span>
+        </div>
+        <div class="rating-wrap" id="ratingContainer">
+          <span class="star filled" onclick="setRating(1)">★</span>
+          <span class="star filled" onclick="setRating(2)">★</span>
+          <span class="star filled" onclick="setRating(3)">★</span>
+          <span class="star filled" onclick="setRating(4)">★</span>
+          <span class="star filled" onclick="setRating(5)">★</span>
+        </div>
+      </div>
+
+      <!-- 표준 테이스팅 필드 (Nose / Palate / Finish) -->
+      <div class="form-group">
+        <div class="form-label"><span class="icon">👃</span> 향 (Nose)</div>
+        <textarea class="form-textarea" id="noteNose" placeholder="부드러운 꿀, 바닐라, 셰리 오크 향...">달콤한 꿀과 잘 익은 바닐라 향, 은은한 건포도와 셰리 오크의 화사함</textarea>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label"><span class="icon">👅</span> 맛 (Palate)</div>
+        <textarea class="form-textarea" id="notePalate" placeholder="부드럽고 달콤하며, 견과류와 시나몬 스파이스...">견과류의 고소함과 시나몬의 은은한 향신료, 묵직하고 부드러운 셰리의 달콤함</textarea>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label"><span class="icon">⏳</span> 여운 (Finish)</div>
+        <textarea class="form-textarea" id="noteFinish" placeholder="따뜻하고 길게 남는 스파이스와 오크...">따뜻하고 부드럽게 감싸는 오크와 말린 과일의 은은하고 긴 여운</textarea>
+      </div>
+
+      <!-- 전문가 모드 확장 필드 (토글 시 노출) -->
+      <div id="expertFields">
+        <div class="section-title" style="margin-bottom:8px; color:var(--ruby-sherry);">
+          <span>🔬 전문가 분석 (Expert Mode)</span>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label"><span>🎨 색상 & 투명도 (Color & Clarity)</span></div>
+          <input type="text" class="form-input" id="expColor" value="1.2 호박색 (Chestnut / Oloroso Sherry)">
+        </div>
+
+        <div class="form-group">
+          <div class="form-label"><span>💧 가수 후 변화 (With Water)</span></div>
+          <textarea class="form-textarea" id="expWithWater" placeholder="물을 2~3방울 떨어뜨린 후 느껴지는 향미 변화...">물을 2방울 넣자 셰리의 산미가 열리며 풋사과와 플로럴한 꽃향기가 더욱 선명해짐.</textarea>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label"><span>🔥 알코올 자극 & 바디감</span></div>
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-sub); margin-bottom:4px;">
+            <span>가벼움 (Light)</span>
+            <span>중간 (Medium)</span>
+            <span>풀바디 (Full)</span>
+          </div>
+          <input type="range" class="intensity-slider" min="1" max="5" value="4">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 하단 저장 버튼 -->
+    <div class="bottom-bar">
+      <button class="save-btn" onclick="saveTastingNote()">
+        <span>💾 테이스팅 노트 저장</span>
+      </button>
+    </div>
+
+    <!-- 모달: AI 음성 인식 시뮬레이션 -->
+    <div class="modal-backdrop" id="aiModal">
+      <div class="modal-box">
+        <h4 style="color:var(--amber-primary); font-size:16px; font-weight:700;">🎙️ AI 음성 시음 분석 중</h4>
+        <p style="font-size:12px; color:var(--text-sub); margin-top:4px;">위스키를 마시며 편하게 말씀하신 내용을 분석합니다.</p>
+        
+        <div class="waveform-box">
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+        </div>
+
+        <div class="transcript-text" id="transcriptOutput">
+          "인식 시작 대기 중..."
+        </div>
+
+        <button class="modal-close-btn" onclick="closeAiModal()">취소</button>
+      </div>
+    </div>
+
+    <!-- 모달: 저장 완료 테이스팅 카드 뷰 -->
+    <div class="modal-backdrop" id="cardModal">
+      <div class="modal-box" style="text-align:left;">
+        <div style="text-align:center; margin-bottom:12px;">
+          <div style="font-size:32px;">🏆</div>
+          <div class="card-preview-header">TASTING CARD</div>
+          <p style="font-size:11px; color:var(--text-sub);">테이스팅 노트가 안전하게 저장되었습니다!</p>
+        </div>
+
+        <div style="background:#090B0E; border:1px solid var(--amber-dark); border-radius:12px; padding:12px; margin-bottom:14px;">
+          <div style="font-weight:700; color:#FFF; font-size:14px;">발베니 12년 더블우드</div>
+          <div style="font-size:11px; color:var(--amber-light); margin-bottom:8px;">★ 4.5 | 40.0% ABV | Speyside</div>
+          <div style="font-size:12px; color:var(--text-sub); line-height:1.4;">
+            "달콤한 바닐라와 꿀, 부드러운 셰리 오크의 풍미가 완벽한 조화를 이루는 데일리 위스키."
+          </div>
+        </div>
+
+        <button class="save-btn" style="margin-bottom:8px;" onclick="closeCardModal()">
+          <span>📱 보관함으로 이동</span>
+        </button>
+        <button class="modal-close-btn" onclick="closeCardModal()">계속 수정하기</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // 8대 향미 데이터 모델
+    const FLAVORS = [
+      { key: 'smoky', name: '피트/스모키', en: 'Peaty', icon: '🔥', color: '#EF4444', value: 1, subTags: ['이탄', '훈연', '재', '요오드', '해초'] },
+      { key: 'fruity', name: '과일/프루티', en: 'Fruity', icon: '🍎', color: '#F97316', value: 3, subTags: ['사과', '배', '시트러스', '건과일', '베리'] },
+      { key: 'sweet', name: '달콤함/바닐라', en: 'Sweet', icon: '🍯', color: '#F59E0B', value: 4, subTags: ['바닐라', '꿀', '캐러멜', '토피', '초콜릿'] },
+      { key: 'floral', name: '꽃/플로럴', en: 'Floral', icon: '🌸', color: '#EC4899', value: 2, subTags: ['들꽃', '라벤더', '풀내음', '장미', '허브'] },
+      { key: 'woody', name: '오크/우디', en: 'Woody', icon: '🪵', color: '#A855F7', value: 4, subTags: ['새 오크', '탄 나무', '삼나무', '가죽'] },
+      { key: 'spicy', name: '스파이스', en: 'Spicy', icon: '🌶️', color: '#6366F1', value: 2, subTags: ['시나몬', '후추', '정향', '생강'] },
+      { key: 'malty', name: '곡물/몰트', en: 'Malty', icon: '🌾', color: '#10B981', value: 3, subTags: ['보리', '비스킷', '토스트', '견과류'] },
+      { key: 'winey', name: '와인/셰리', en: 'Winey', icon: '🍷', color: '#F43F5E', value: 3, subTags: ['건포도', '무화과', '셰리', '다크베리'] }
+    ];
+
+    let currentMode = 'standard';
+    let selectedFlavorIndex = 2; // Default: Sweet
+    let canvas, ctx;
+
+    window.onload = () => {
+      canvas = document.getElementById('radarCanvas');
+      ctx = canvas.getContext('2d');
+      setupCanvasEvents();
+      drawRadarChart();
+      updateFlavorPanel();
+    };
+
+    // 모드 전환
+    function switchMode(mode) {
+      currentMode = mode;
+      document.getElementById('btnStandard').classList.toggle('active', mode === 'standard');
+      document.getElementById('btnExpert').classList.toggle('active', mode === 'expert');
+      document.getElementById('expertFields').classList.toggle('show', mode === 'expert');
+    }
+
+    // 레이더 차트 렌더링
+    function drawRadarChart() {
+      const w = canvas.width;
+      const h = canvas.height;
+      const centerX = w / 2;
+      const centerY = h / 2;
+      const radius = w * 0.38;
+      const count = FLAVORS.length;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // 1. 동심원 격자 (0~5 레벨)
+      for (let level = 1; level <= 5; level++) {
+        ctx.beginPath();
+        ctx.strokeStyle = level === 5 ? 'rgba(245, 158, 11, 0.3)' : 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 1.5;
+        const curR = (radius / 5) * level;
+
+        for (let i = 0; i < count; i++) {
+          const angle = (Math.PI * 2 / count) * i - Math.PI / 2;
+          const x = centerX + curR * Math.cos(angle);
+          const y = centerY + curR * Math.sin(angle);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+
+      // 2. 방사형 축 선
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 / count) * i - Math.PI / 2;
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+
+        ctx.beginPath();
+        ctx.strokeStyle = i === selectedFlavorIndex ? 'rgba(245, 158, 11, 0.7)' : 'rgba(255, 255, 255, 0.12)';
+        ctx.lineWidth = i === selectedFlavorIndex ? 2 : 1;
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+
+        // 라벨 렌더링
+        const labelR = radius + 38;
+        const lx = centerX + labelR * Math.cos(angle);
+        const ly = centerY + labelR * Math.sin(angle);
+
+        ctx.font = i === selectedFlavorIndex ? 'bold 22px Pretendard' : '500 18px Pretendard';
+        ctx.fillStyle = i === selectedFlavorIndex ? '#F59E0B' : '#94A3B8';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`${FLAVORS[i].icon} ${FLAVORS[i].en}`, lx, ly);
+      }
+
+      // 3. 향미 데이터 폴리곤 (앰버 글로우 채우기)
+      ctx.beginPath();
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 / count) * i - Math.PI / 2;
+        const r = (radius / 5) * FLAVORS[i].value;
+        const x = centerX + r * Math.cos(angle);
+        const y = centerY + r * Math.sin(angle);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+
+      // 그라디언트 채우기
+      const grad = ctx.createRadialGradient(centerX, centerY, 10, centerX, centerY, radius);
+      grad.addColorStop(0, 'rgba(245, 158, 11, 0.65)');
+      grad.addColorStop(1, 'rgba(220, 38, 38, 0.25)');
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      ctx.strokeStyle = '#FBBF24';
+      ctx.lineWidth = 3.5;
+      ctx.shadowColor = 'rgba(245, 158, 11, 0.8)';
+      ctx.shadowBlur = 12;
+      ctx.stroke();
+      ctx.shadowBlur = 0; // reset
+
+      // 4. 각 꼭짓점 핸들러 (드래그/클릭 가능 노드)
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 / count) * i - Math.PI / 2;
+        const r = (radius / 5) * FLAVORS[i].value;
+        const x = centerX + r * Math.cos(angle);
+        const y = centerY + r * Math.sin(angle);
+
+        ctx.beginPath();
+        ctx.arc(x, y, i === selectedFlavorIndex ? 8 : 5, 0, Math.PI * 2);
+        ctx.fillStyle = i === selectedFlavorIndex ? '#FFF' : '#F59E0B';
+        ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    }
+
+    // 휠 캔버스 터치/클릭 인터랙션
+    function setupCanvasEvents() {
+      let isDragging = false;
+
+      const handlePointer = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const x = (clientX - rect.left) * (canvas.width / rect.width);
+        const y = (clientY - rect.top) * (canvas.height / rect.height);
+
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const dx = x - centerX;
+        const dy = y - centerY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const maxR = canvas.width * 0.38;
+
+        // 각도 계산 (-PI/2 기준)
+        let angle = Math.atan2(dy, dx) + Math.PI / 2;
+        if (angle < 0) angle += Math.PI * 2;
+
+        const count = FLAVORS.length;
+        const slice = (Math.PI * 2) / count;
+        let index = Math.round(angle / slice) % count;
+
+        selectedFlavorIndex = index;
+
+        // 거리 기반 값 계산 (0~5)
+        let val = Math.min(5, Math.max(0, Math.round((dist / maxR) * 5)));
+        FLAVORS[index].value = val;
+
+        drawRadarChart();
+        updateFlavorPanel();
+      };
+
+      canvas.addEventListener('mousedown', (e) => { isDragging = true; handlePointer(e); });
+      window.addEventListener('mousemove', (e) => { if (isDragging) handlePointer(e); });
+      window.addEventListener('mouseup', () => { isDragging = false; });
+
+      canvas.addEventListener('touchstart', (e) => { isDragging = true; handlePointer(e); }, { passive: true });
+      window.addEventListener('touchmove', (e) => { if (isDragging) handlePointer(e); }, { passive: true });
+      window.addEventListener('touchend', () => { isDragging = false; });
+    }
+
+    // 하단 향미 조절 패널 업데이트
+    function updateFlavorPanel() {
+      const item = FLAVORS[selectedFlavorIndex];
+      document.getElementById('flavorLabel').innerHTML = `${item.icon} ${item.name} (${item.en})`;
+      document.getElementById('flavorVal').innerText = `${item.value} / 5`;
+      document.getElementById('flavorSlider').value = item.value;
+
+      // 서브 태그 렌더링
+      const wrap = document.getElementById('subTagsWrap');
+      wrap.innerHTML = item.subTags.map((tag, idx) => 
+        `<span class="sub-tag ${idx < item.value ? 'selected' : ''}" onclick="toggleTag(this)">${tag}</span>`
+      ).join('');
+
+      // 상단 뱃지 갱신
+      const topFlavors = [...FLAVORS].sort((a, b) => b.value - a.value).slice(0, 2);
+      document.getElementById('dominantFlavorBadge').innerText = `${topFlavors[0].name.split('/')[0]} & ${topFlavors[1].name.split('/')[0]} 지배적`;
+    }
+
+    function updateActiveFlavor(val) {
+      FLAVORS[selectedFlavorIndex].value = parseInt(val, 10);
+      document.getElementById('flavorVal').innerText = `${val} / 5`;
+      drawRadarChart();
+      updateFlavorPanel();
+    }
+
+    function toggleTag(el) {
+      el.classList.toggle('selected');
+    }
+
+    function setRating(score) {
+      const stars = document.querySelectorAll('#ratingContainer .star');
+      stars.forEach((star, idx) => {
+        star.classList.toggle('filled', idx < score);
+      });
+      document.getElementById('ratingScore').innerText = `${score}.0 / 5.0`;
+    }
+
+    // 가상 AI 음성 녹음 시뮬레이션
+    function startVoiceSimulation() {
+      const modal = document.getElementById('aiModal');
+      const transcript = document.getElementById('transcriptOutput');
+      modal.classList.add('show');
+      transcript.innerHTML = "<span style='color:var(--text-sub);'>🎙️ 음성을 듣고 분석하고 있습니다...</span>";
+
+      const script = "발베니 12년 더블우드를 시음해보니, 바닐라와 달콤한 꿀 향이 아주 강렬하게 퍼지고 은은한 셰리 오크와 건포도의 달콤함이 조화롭습니다. 목넘김은 부드러우며 피트 향은 거의 없고 스파이시한 여운이 길게 이어집니다.";
+
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i < script.length) {
+          transcript.innerText = script.slice(0, i + 3);
+          i += 3;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => {
+            // AI가 파싱하여 폼과 휠 자동 채움
+            FLAVORS.find(f => f.key === 'sweet').value = 5;
+            FLAVORS.find(f => f.key === 'woody').value = 4;
+            FLAVORS.find(f => f.key === 'winey').value = 4;
+            FLAVORS.find(f => f.key === 'fruity').value = 3;
+            FLAVORS.find(f => f.key === 'spicy').value = 3;
+            FLAVORS.find(f => f.key === 'smoky').value = 0;
+
+            document.getElementById('noteNose').value = "화사한 바닐라, 달콤한 벌꿀, 건포도와 셰리 오크의 풍부한 아로마";
+            document.getElementById('notePalate').value = "부드럽고 크리미한 질감, 말린 과일과 견과류, 은은한 시나몬 스파이스";
+            document.getElementById('noteFinish').value = "따뜻하고 스파이시하며 오래 남는 오크와 달콤한 꿀의 여운";
+
+            drawRadarChart();
+            updateFlavorPanel();
+            closeAiModal();
+
+            // 알림 피드백
+            alert('✨ AI가 음성 내용을 분석하여 테이스팅 노트와 플레이버 휠 수치를 자동으로 완성했습니다!');
+          }, 600);
+        }
+      }, 40);
+    }
+
+    function closeAiModal() {
+      document.getElementById('aiModal').classList.remove('show');
+    }
+
+    function saveTastingNote() {
+      document.getElementById('cardModal').classList.add('show');
+    }
+
+    function closeCardModal() {
+      document.getElementById('cardModal').classList.remove('show');
+    }
+  </script>
+</body>
+</html>

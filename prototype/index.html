@@ -1393,13 +1393,40 @@
     // ==========================================
     // 5. 360도 완성형 옥타곤 배경 & 롱프레스 팝아웃 레이더 차트
     // ==========================================
+    // 완성된 차트 인터랙션 상태 (대분류 따로 / 소분류 따로)
+    let finalChartMode = 'TIER1_RADAR'; // 'TIER1_RADAR' | 'SUBNODE_PIE'
+    let activePoppedPie = null;         // { tier1Idx, subnodeIdx }
+
     function openFinalResultModal() {
+      finalChartMode = 'TIER1_RADAR';
+      activePoppedPie = null;
       document.getElementById('resultModal').classList.add('show');
+      updateFinalModalBadge();
       draw360OctagonRadarChart();
     }
 
     function closeFinalResultModal() {
       document.getElementById('resultModal').classList.remove('show');
+    }
+
+    function updateFinalModalBadge() {
+      const titleEl = document.getElementById('lpTitle');
+      const scoreEl = document.getElementById('lpScore');
+
+      if (finalChartMode === 'TIER1_RADAR') {
+        titleEl.innerHTML = '👆 <b>대분류 레이더 차트를 탭</b>하면 <b>소분류 파이 차트</b>로 전환됩니다';
+        scoreEl.innerText = '대분류 뷰';
+      } else if (!activePoppedPie) {
+        titleEl.innerHTML = '🔍 <b>개별 파이 조각을 탭</b>하여 확대하세요 (바깥쪽 터치 시 대분류 레이더 복귀)';
+        scoreEl.innerText = '소분류 뷰';
+      } else {
+        const t1 = currentTier1List[activePoppedPie.tier1Idx];
+        if (t1 && t1.subnodes[activePoppedPie.subnodeIdx]) {
+          const sub = t1.subnodes[activePoppedPie.subnodeIdx];
+          titleEl.innerHTML = `🌟 <b>${t1.icon} ${t1.name}</b> ▶ <b style="color:#FFF;">${sub.name}</b>`;
+          scoreEl.innerText = `${sub.score.toFixed(1)} / 10점`;
+        }
+      }
     }
 
     function draw360OctagonRadarChart() {
@@ -1415,98 +1442,166 @@
 
       fCtx.clearRect(0, 0, w, h);
 
+      // 1. [가장 밑 배경] 10점 척도 원형 동심원 그리드 & 방사선 축선
       for (let level = 2; level <= 10; level += 2) {
+        const r = (maxR / 10) * level;
         fCtx.beginPath();
-        fCtx.arc(cx, cy, (maxR / 10) * level, 0, Math.PI * 2);
-        fCtx.strokeStyle = level === 10 ? 'rgba(245, 158, 11, 0.4)' : 'rgba(255, 255, 255, 0.08)';
-        fCtx.lineWidth = 1.2;
+        fCtx.arc(cx, cy, r, 0, Math.PI * 2);
+        fCtx.strokeStyle = level === 10 ? 'rgba(245, 158, 11, 0.45)' : 'rgba(255, 255, 255, 0.08)';
+        fCtx.lineWidth = level === 10 ? 1.8 : 1.0;
         fCtx.stroke();
+
+        fCtx.font = '600 11px Pretendard';
+        fCtx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        fCtx.textAlign = 'right';
+        fCtx.fillText(`${level}`, cx - 6, cy - r + 3);
       }
 
-      // 뒷배경: 옥타곤 다각형
+      // 각 대분류 방사선 축선 & 외곽 라벨
+      for (let i = 0; i < count; i++) {
+        const angle = -Math.PI / 2 + (i * sectorSpan);
+        fCtx.beginPath();
+        fCtx.moveTo(cx, cy);
+        fCtx.lineTo(cx + maxR * Math.cos(angle), cy + maxR * Math.sin(angle));
+        fCtx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+        fCtx.lineWidth = 1;
+        fCtx.stroke();
+
+        const lx = cx + (maxR + 28) * Math.cos(angle);
+        const ly = cy + (maxR + 28) * Math.sin(angle);
+        const t1 = currentTier1List[i];
+        fCtx.font = '700 13px Pretendard';
+        fCtx.fillStyle = t1.intensity > 0 ? '#FDE68A' : 'rgba(255, 255, 255, 0.35)';
+        fCtx.textAlign = 'center';
+        fCtx.textBaseline = 'middle';
+        fCtx.fillText(`${t1.icon} ${t1.name.split('/')[0]}`, lx, ly);
+      }
+
+      // 2. [모드 A: 대분류 레이더 차트 (TIER1_RADAR)]
+      // 대분류만 놓고 정통 레이더 다각형 렌더링!
       fCtx.beginPath();
+      const polygonPoints = [];
       for (let i = 0; i < count; i++) {
         const angle = -Math.PI / 2 + (i * sectorSpan);
         const r = (maxR / 10) * currentTier1List[i].intensity;
         const x = cx + r * Math.cos(angle);
         const y = cy + r * Math.sin(angle);
+        polygonPoints.push({ x, y, r, angle, intensity: currentTier1List[i].intensity });
+
         if (i === 0) fCtx.moveTo(x, y);
         else fCtx.lineTo(x, y);
-
-        fCtx.beginPath();
-        fCtx.moveTo(cx, cy);
-        fCtx.lineTo(cx + maxR * Math.cos(angle), cy + maxR * Math.sin(angle));
-        fCtx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-        fCtx.stroke();
-
-        const lx = cx + (maxR + 26) * Math.cos(angle);
-        const ly = cy + (maxR + 26) * Math.sin(angle);
-        fCtx.font = '700 16px Pretendard';
-        fCtx.fillStyle = currentTier1List[i].intensity > 0 ? '#FDE68A' : 'rgba(255, 255, 255, 0.3)';
-        fCtx.textAlign = 'center';
-        fCtx.textBaseline = 'middle';
-        fCtx.fillText(currentTier1List[i].icon, lx, ly);
       }
       fCtx.closePath();
-      fCtx.fillStyle = 'rgba(245, 158, 11, 0.15)';
+
+      // 레이더 다각형 면적 채우기 & 테두리
+      fCtx.fillStyle = finalChartMode === 'TIER1_RADAR' ? 'rgba(245, 158, 11, 0.35)' : 'rgba(245, 158, 11, 0.12)';
       fCtx.fill();
       fCtx.strokeStyle = '#F59E0B';
       fCtx.lineWidth = 2.5;
       fCtx.stroke();
 
-      // 전면: 소분류 쐐기들 (대분류 점수 영역 안에서 10점 만점 비례 렌더링)
-      currentTier1List.forEach((t1, i) => {
-        if (t1.intensity === 0) return;
-        const startAngle = -Math.PI / 2 + (i * sectorSpan) - sectorSpan / 2;
-        const subCount = t1.subnodes.length;
-        if (subCount === 0) return;
-        const wedgeSpan = sectorSpan / subCount;
-        const maxR_t1 = (maxR / 10) * t1.intensity;
-
-        t1.subnodes.forEach((sub, sIdx) => {
-          if (sub.score === 0) return;
-          const wStart = startAngle + (sIdx * wedgeSpan);
-          const wEnd = wStart + wedgeSpan;
-
-          const isPopped = activeLongpressSubnode &&
-                           activeLongpressSubnode.tier1Idx === i &&
-                           activeLongpressSubnode.subnodeIdx === sIdx;
-
-          // [핵심] 대분류 영역(maxR_t1) 한도 내에서 sub.score (0~10)만큼 채움
-          const fillR = (maxR_t1 / 10) * sub.score * (isPopped ? 1.15 : 1.0);
-
+      // 꼭짓점 마커 & 대분류 점수 라벨
+      polygonPoints.forEach((pt) => {
+        if (pt.intensity > 0) {
           fCtx.beginPath();
-          fCtx.moveTo(cx, cy);
-          fCtx.arc(cx, cy, fillR, wStart + 0.02, wEnd - 0.02);
-          fCtx.closePath();
-
-          fCtx.fillStyle = t1.color || '#F59E0B';
-          fCtx.globalAlpha = isPopped ? 1.0 : 0.75;
+          fCtx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+          fCtx.fillStyle = '#FBBF24';
           fCtx.fill();
-          fCtx.globalAlpha = 1.0;
-
-          fCtx.strokeStyle = isPopped ? '#FFF' : 'rgba(255, 255, 255, 0.6)';
-          fCtx.lineWidth = isPopped ? 3 : 1;
-          if (isPopped) {
-            fCtx.shadowColor = '#FFF';
-            fCtx.shadowBlur = 15;
-          }
+          fCtx.strokeStyle = '#0F131C';
+          fCtx.lineWidth = 1.5;
           fCtx.stroke();
-          fCtx.shadowBlur = 0;
-        });
+
+          const scoreDist = pt.r + 14;
+          const sx = cx + scoreDist * Math.cos(pt.angle);
+          const sy = cy + scoreDist * Math.sin(pt.angle);
+          fCtx.font = '800 11px Pretendard';
+          fCtx.fillStyle = '#FBBF24';
+          fCtx.fillText(`${pt.intensity.toFixed(1)}`, sx, sy);
+        }
       });
+
+      // 3. [모드 B: 소분류 파이 차트 (SUBNODE_PIE)]
+      // 레이더 차트를 탭했을 때 구성된 소분류 파이 차트가 펼쳐짐!
+      if (finalChartMode === 'SUBNODE_PIE') {
+        currentTier1List.forEach((t1, i) => {
+          if (t1.intensity === 0) return;
+          const startAngle = -Math.PI / 2 + (i * sectorSpan) - sectorSpan / 2;
+          const subCount = t1.subnodes.length;
+          if (subCount === 0) return;
+          const wedgeSpan = sectorSpan / subCount;
+          const maxR_t1 = (maxR / 10) * t1.intensity;
+
+          t1.subnodes.forEach((sub, sIdx) => {
+            if (sub.score === 0) return;
+            const wStart = startAngle + (sIdx * wedgeSpan);
+            const wEnd = wStart + wedgeSpan;
+            const wMid = (wStart + wEnd) / 2;
+
+            const isPopped = activePoppedPie &&
+                             activePoppedPie.tier1Idx === i &&
+                             activePoppedPie.subnodeIdx === sIdx;
+
+            const hasActivePopped = !!activePoppedPie;
+
+            // [핵심] 각각의 파이를 탭하면 해당 파이가 1.45배 확 커져서 눈에 잘 보이게 렌더링!
+            const fillR = (maxR_t1 / 10) * sub.score * (isPopped ? 1.45 : 1.0);
+
+            // 파이 그래프 조각(Pie Wedge) 채우기
+            fCtx.beginPath();
+            fCtx.moveTo(cx, cy);
+            fCtx.arc(cx, cy, fillR, wStart + 0.015, wEnd - 0.015);
+            fCtx.closePath();
+
+            const grad = fCtx.createRadialGradient(cx, cy, 0, cx, cy, fillR);
+            grad.addColorStop(0, t1.color || '#F59E0B');
+            grad.addColorStop(1, '#DC2626');
+            fCtx.fillStyle = grad;
+            fCtx.globalAlpha = isPopped ? 1.0 : (hasActivePopped ? 0.35 : 0.85);
+            fCtx.fill();
+            fCtx.globalAlpha = 1.0;
+
+            // 파이 조각 테두리 & 네온 글로우
+            fCtx.strokeStyle = isPopped ? '#FFFFFF' : 'rgba(255, 255, 255, 0.7)';
+            fCtx.lineWidth = isPopped ? 3.5 : 1.2;
+            if (isPopped) {
+              fCtx.shadowColor = '#FDE68A';
+              fCtx.shadowBlur = 18;
+            }
+            fCtx.stroke();
+            fCtx.shadowBlur = 0;
+
+            // 파이 조각 라벨 (이름 & 점수)
+            if (fillR > 25) {
+              const labelR = isPopped ? fillR * 0.72 : fillR * 0.65;
+              const px = cx + labelR * Math.cos(wMid);
+              const py = cy + labelR * Math.sin(wMid);
+
+              fCtx.font = isPopped ? '800 13px Pretendard' : '700 10px Pretendard';
+              fCtx.fillStyle = '#FFFFFF';
+              fCtx.textAlign = 'center';
+              fCtx.fillText(sub.name, px, py - (isPopped ? 6 : 4));
+
+              fCtx.font = isPopped ? '800 12px Pretendard' : '800 9px Pretendard';
+              fCtx.fillStyle = '#FDE68A';
+              fCtx.fillText(`${sub.score.toFixed(1)}점`, px, py + (isPopped ? 9 : 7));
+            }
+          });
+        });
+      }
     }
 
     function setupFinalChartLongpress() {
       const finalCanvas = document.getElementById('finalRadarCanvas');
 
-      const handlePress = (clientX, clientY) => {
+      const handleTap = (clientX, clientY) => {
         const rect = finalCanvas.getBoundingClientRect();
         const x = (clientX - rect.left) * (finalCanvas.width / rect.width);
         const y = (clientY - rect.top) * (finalCanvas.height / rect.height);
         const cx = finalCanvas.width / 2;
         const cy = finalCanvas.height / 2;
+        const maxR = finalCanvas.width * 0.38;
 
+        const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
         let angle = Math.atan2(y - cy, x - cx);
         const count = currentTier1List.length;
         const sectorSpan = (Math.PI * 2) / count;
@@ -1518,34 +1613,55 @@
         const t1Idx = Math.floor(normAngle / sectorSpan) % count;
         const t1 = currentTier1List[t1Idx];
 
-        if (t1.intensity > 0 && t1.subnodes.length > 0) {
+        // 1. [대분류 레이더 상태에서 탭] -> 레이더 차트 내부 탭 시 소분류 파이 차트 펼침!
+        if (finalChartMode === 'TIER1_RADAR') {
+          if (dist <= maxR * 1.1) {
+            finalChartMode = 'SUBNODE_PIE';
+            activePoppedPie = null;
+            updateFinalModalBadge();
+            draw360OctagonRadarChart();
+            showToast('🥧 소분류 파이 차트가 펼쳐졌습니다!');
+          }
+          return;
+        }
+
+        // 2. [소분류 파이 차트 상태에서 탭]
+        if (finalChartMode === 'SUBNODE_PIE') {
+          // [핵심] 파이 바깥쪽/여백을 누르면 다시 대분류 레이더 차트만 표시!
+          if (dist > maxR * 1.05 || !t1 || t1.subnodes.length === 0) {
+            finalChartMode = 'TIER1_RADAR';
+            activePoppedPie = null;
+            updateFinalModalBadge();
+            draw360OctagonRadarChart();
+            showToast('◀ 대분류 레이더 차트로 복귀');
+            return;
+          }
+
+          // 파이 조각 내부를 탭한 경우 -> 해당 파이 확 커지게 확대/토글!
           const subCount = t1.subnodes.length;
           const wedgeSpan = sectorSpan / subCount;
           const subIdx = Math.floor((normAngle % sectorSpan) / wedgeSpan) % subCount;
 
-          activeLongpressSubnode = { tier1Idx: t1Idx, subnodeIdx: subIdx };
-          draw360OctagonRadarChart();
+          if (activePoppedPie &&
+              activePoppedPie.tier1Idx === t1Idx &&
+              activePoppedPie.subnodeIdx === subIdx) {
+            activePoppedPie = null;
+          } else {
+            activePoppedPie = { tier1Idx: t1Idx, subnodeIdx: subIdx };
+            showToast(`🔍 '${t1.subnodes[subIdx].name}' 파이 확대`);
+          }
 
-          const sub = t1.subnodes[subIdx];
-          document.getElementById('lpTitle').innerHTML = `🔍 <b>${t1.icon} ${t1.name}</b> (대분류: ${t1.intensity}점) ▶ <b>${sub.name}</b>`;
-          document.getElementById('lpScore').innerText = `${sub.score.toFixed(1)} 점`;
+          updateFinalModalBadge();
+          draw360OctagonRadarChart();
         }
       };
 
-      const cancelPress = () => {
-        activeLongpressSubnode = null;
-        draw360OctagonRadarChart();
-        document.getElementById('lpTitle').innerText = '💡 소분류 쐐기를 길게 누르면(Long-press) 팝아웃 확대됩니다';
-        document.getElementById('lpScore').innerText = '';
-      };
-
-      finalCanvas.addEventListener('mousedown', (e) => handlePress(e.clientX, e.clientY));
-      window.addEventListener('mouseup', cancelPress);
-
-      finalCanvas.addEventListener('touchstart', (e) => {
-        handlePress(e.touches[0].clientX, e.touches[0].clientY);
-      }, { passive: true });
-      window.addEventListener('touchend', cancelPress);
+      finalCanvas.addEventListener('click', (e) => handleTap(e.clientX, e.clientY));
+      finalCanvas.addEventListener('touchend', (e) => {
+        if (e.changedTouches && e.changedTouches[0]) {
+          handleTap(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        }
+      });
     }
 
     function confirmSaveNote() {

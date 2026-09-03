@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flavor Wheel - Reset to Tier1 Score View on Drag</title>
+  <title>Flavor Wheel - Bottom Rotary Mini Dial in Zoomed View</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -286,7 +286,7 @@
     /* 소분류가 비었을 때 플로팅 추가 버튼 */
     .floating-add-tag-btn {
       position: absolute;
-      top: 50%;
+      top: 46%;
       left: 50%;
       transform: translate(-50%, -50%);
       padding: 10px 18px;
@@ -699,7 +699,7 @@
     let currentTier1List = DATA_DOMAINS.whisky.tier1;
     let selectedTier1Index = 0;
 
-    // 플로우 상태: 'WHEEL_NAV' (Step 1) vs 'ZOOMED_SECTOR' (Step 2)
+    // 플로우 상태
     let currentFlowPhase = 'WHEEL_NAV';
     let zoomProgress = 0.0;
     let targetZoomProgress = 0.0;
@@ -937,10 +937,52 @@
           }
         }
       });
+
+      // ========================================================
+      // [신규 핵심] 소분류 줌인 상태 시 하단 중앙의 작은 반원 회전 다이얼 림 렌더링!
+      // ========================================================
+      if (zoomProgress > 0.2) {
+        const miniDialR = minR * 0.92;
+
+        // 반원 배경 글로우
+        ctx.beginPath();
+        ctx.arc(cx, cy, miniDialR, -Math.PI, 0);
+        ctx.fillStyle = 'rgba(15, 19, 28, 0.92)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.6)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // 미니 반원 외곽 림 눈금 & 각 대분류 미니 인디케이터
+        for (let i = 0; i < count; i++) {
+          const baseAngle = -Math.PI / 2 + (i * sectorSpan) + wheelAngle;
+          const isCurr = (i === selectedTier1Index);
+
+          const dotX = cx + (miniDialR - 16) * Math.cos(baseAngle);
+          const dotY = cy + (miniDialR - 16) * Math.sin(baseAngle);
+
+          if (dotY <= cy + 4) { // 반원 상단에만 노출
+            ctx.beginPath();
+            ctx.arc(dotX, dotY, isCurr ? 6 : 3, 0, Math.PI * 2);
+            ctx.fillStyle = isCurr ? '#FBBF24' : 'rgba(255, 255, 255, 0.3)';
+            ctx.fill();
+          }
+        }
+
+        // 다이얼 조작 텍스트 힌트
+        ctx.font = '700 12px Pretendard';
+        ctx.fillStyle = '#FDE68A';
+        ctx.textAlign = 'center';
+        ctx.fillText('🔄 휠 회전 다이얼', cx, cy - miniDialR * 0.45);
+
+        ctx.font = '500 10px Pretendard';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.fillText('◀ 좌우로 돌려 대분류 이동 ▶', cx, cy - miniDialR * 0.22);
+      }
     }
 
     // ==========================================
-    // 3. 제스처 핸들링: 좌우 드래그 시 즉시 1단계 대분류 점수 뷰로 줌아웃 전환!
+    // 3. 제스처 핸들링: 하단 미니 다이얼 림 & 상단 소분류 조작
     // ==========================================
     function setupUnifiedGestures() {
       const wrap = document.getElementById('canvasWrap');
@@ -964,7 +1006,7 @@
         gestureIntent = 'NONE';
         activeSubnodeIdx = -1;
 
-        const { cx, cy } = getWheelGeometry();
+        const { cx, cy, minR } = getWheelGeometry();
         const count = currentTier1List.length;
         const sectorSpan = (Math.PI * 2) / count;
         const baseAngle = -Math.PI / 2 + (selectedTier1Index * sectorSpan) + wheelAngle;
@@ -973,9 +1015,17 @@
         const t1 = currentTier1List[selectedTier1Index];
 
         let touchAngle = Math.atan2(pos.y - cy, pos.x - cx);
+        const dist = Math.sqrt((pos.x - cx) ** 2 + (pos.y - cy) ** 2);
 
         spinStartAngle = Math.atan2(pos.y - cy, pos.x - cx);
         spinInitialAngle = wheelAngle;
+
+        // [중요] 줌인 상태에서 하단 미니 반원 다이얼 영역(dist <= minR) 터치 시 즉시 휠 회전 모드로 인식!
+        if (currentFlowPhase === 'ZOOMED_SECTOR' && dist <= minR * 1.1) {
+          gestureIntent = 'HORIZONTAL_SPIN';
+          isSpinningWheel = true;
+          return;
+        }
 
         if (currentFlowPhase === 'ZOOMED_SECTOR' && t1.subnodes.length > 0) {
           const subCount = t1.subnodes.length;
@@ -1013,7 +1063,6 @@
               gestureIntent = 'HORIZONTAL_SPIN';
               isSpinningWheel = true;
 
-              // [핵심] 좌우 드래그 시작 시 즉시 1단계 대분류 점수 선택 영역으로 줌아웃 전환!
               if (currentFlowPhase === 'ZOOMED_SECTOR') {
                 currentFlowPhase = 'WHEEL_NAV';
                 targetZoomProgress = 0.0;
@@ -1028,7 +1077,7 @@
         const { cx, cy } = getWheelGeometry();
         const dist = Math.sqrt((pos.x - cx) ** 2 + (pos.y - cy) ** 2);
 
-        // 1. 좌우 드래그: 1:1 리얼타임 휠 회전
+        // 1. 좌우 드래그 또는 하단 미니 다이얼 드래그 시 1:1 회전
         if (gestureIntent === 'HORIZONTAL_SPIN' || isSpinningWheel) {
           const curAngle = Math.atan2(pos.y - cy, pos.x - cx);
           wheelAngle = spinInitialAngle + (curAngle - spinStartAngle);
@@ -1060,7 +1109,6 @@
         const dx = Math.abs(pos.rawX - touchDownPos.rawX);
         const dy = Math.abs(pos.rawY - touchDownPos.rawY);
 
-        // 탭 판정: 이동량이 적고 1단계 모드일 때 점수 영역 탭 시 소분류 확대 진입
         if (dx < 10 && dy < 10 && currentFlowPhase === 'WHEEL_NAV') {
           const t1 = currentTier1List[selectedTier1Index];
           if (t1.intensity > 0) {
@@ -1068,7 +1116,6 @@
           }
         }
 
-        // 손 뗄 때 마그네틱 스냅 안착 (항상 1단계 뷰 유지)
         if (isSpinningWheel) {
           isSpinningWheel = false;
           const count = currentTier1List.length;
@@ -1163,7 +1210,7 @@
       } else {
         phaseBadge.classList.add('zoomed');
         phaseText.innerText = `2단계: 소분류 평가 (상한: ${t1.intensity.toFixed(1)}점)`;
-        hintText.innerText = '↔ 좌우로 드래그하면 1단계 대분류 점수 영역으로 회전 전환됩니다';
+        hintText.innerText = '🔄 하단 중앙 미니 반원을 좌우로 돌려 대분류를 쉽게 전환하세요';
         btnZoomOut.classList.add('show');
         tapBadge.classList.remove('show');
 

@@ -1437,7 +1437,7 @@
       const cx = w / 2;
       const cy = h / 2;
       const maxR = w * 0.38;
-      const minR = maxR * 0.20; // [핵심] 기존 2점 크기 안쪽 원을 '0점 베이스 링(R_0)'으로 설정!
+      const minR = maxR * 0.08; // [핵심] 0점 베이스 링(R_0) 크기를 콤팩트한 미니 코어 링으로 축소!
       const count = currentTier1List.length;
       const sectorSpan = (Math.PI * 2) / count;
 
@@ -1625,7 +1625,7 @@
         const cx = finalCanvas.width / 2;
         const cy = finalCanvas.height / 2;
         const maxR = finalCanvas.width * 0.38;
-        const minR = maxR * 0.20;
+        const minR = maxR * 0.08;
 
         const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
         let angle = Math.atan2(y - cy, x - cx);

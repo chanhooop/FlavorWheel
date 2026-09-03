@@ -778,6 +778,17 @@
       return { w, h, cx, cy, maxR, minR };
     }
 
+    function getEffectiveZoomIntensity(intensity, zoom) {
+      // zoom이 0(1단계 휠 뷰)일 때는 순수 intensity
+      // zoom이 1(소분류 줌인 뷰)이고 intensity <= 4.0일 때, 6.0점 높이 수준으로 동적 스케일 확장!
+      if (intensity <= 0) return 0;
+      let targetVisual = intensity;
+      if (intensity <= 4.0) {
+        targetVisual = 4.0 + intensity * 0.5; // 4.0->6.0, 3.0->5.5, 2.0->5.0, 1.0->4.5
+      }
+      return intensity + (targetVisual - intensity) * zoom;
+    }
+
     function drawUnifiedGiantWheel() {
       const { w, h, cx, cy, maxR, minR } = getWheelGeometry();
       ctx.clearRect(0, 0, w, h);
@@ -807,7 +818,9 @@
         const endAngle = baseAngle + sectorSpan / 2;
         const isCurrent = (i === selectedTier1Index);
 
-        const intensityR = minR + ((maxR - minR) / 10) * t1.intensity;
+        // [핵심] 대분류 점수가 4 이하일 경우 줌인 시 6점 수준으로 시각적 확장 적용!
+        const effectiveIntensity = isCurrent ? getEffectiveZoomIntensity(t1.intensity, zoomProgress) : t1.intensity;
+        const intensityR = minR + ((maxR - minR) / 10) * effectiveIntensity;
 
         // 섹터 경계선
         ctx.beginPath();
@@ -1220,11 +1233,12 @@
     function applySubnodeScoreFromDist(sIdx, dist) {
       const { maxR, minR } = getWheelGeometry();
       const t1 = currentTier1List[selectedTier1Index];
-      const intensityR = minR + ((maxR - minR) / 10) * t1.intensity;
+      // [핵심] 대분류 점수가 4 이하일 때도 6점대 수준으로 확장된 조작 영역에서 0~10점 계산!
+      const effectiveIntensity = getEffectiveZoomIntensity(t1.intensity, 1.0);
+      const intensityR = minR + ((maxR - minR) / 10) * effectiveIntensity;
       const availableSpan = intensityR - minR;
       if (availableSpan <= 0) return;
 
-      // [핵심] 소분류 선택 영역의 상한은 대분류 영역(intensityR)까지이며, 상한 도달 시 10점 만점!
       let score = ((dist - minR) / availableSpan) * 10;
       score = Math.min(10.0, Math.max(0.0, score));
       t1.subnodes[sIdx].score = Math.round(score * 10) / 10;
@@ -1282,8 +1296,11 @@
         }
       } else {
         phaseBadge.classList.add('zoomed');
-        phaseText.innerText = `2단계: 소분류 평가 [0.0 ~ 10.0점]`;
-        hintText.innerText = '👆 대분류 영역 안에서 위아래로 드래그하여 소분류 점수(10점 만점)를 조절하세요';
+        const isAdaptive = t1.intensity > 0 && t1.intensity <= 4.0;
+        phaseText.innerText = isAdaptive 
+          ? `2단계: 소분류 평가 [🔍 확대 렌즈 (${t1.intensity.toFixed(1)}점 ➔ 6.0점 영역 확장)]`
+          : `2단계: 소분류 평가 [0.0 ~ 10.0점]`;
+        hintText.innerText = '👆 확장된 부채꼴 영역 안에서 위아래로 드래그하여 소분류 점수를 조절하세요';
         btnZoomOut.classList.add('show');
         tapBadge.classList.remove('show');
 

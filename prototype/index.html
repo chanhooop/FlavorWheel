@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flavor Wheel - Tap to Zoom & Continuous Horizontal Wheel Spin</title>
+  <title>Flavor Wheel - Click-Drag Wheel Spin & Strict Hover Lock</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -255,7 +255,7 @@
     .rim-guide-arrow.left { left: 10px; }
     .rim-guide-arrow.right { right: 10px; }
 
-    /* 대분류 점수 설정 후 [🔍 탭하여 소분류 평가] 플로팅 뱃지 */
+    /* 대분류 점수 설정 후 나타나는 [🔍 탭하여 소분류 평가] 뱃지 */
     .tap-to-zoom-badge {
       position: absolute;
       top: 46%;
@@ -551,13 +551,13 @@
       </div>
 
       <div class="gesture-hint">
-        <span id="hintText">👆 차트 영역을 누르고 위아래로 움직여 점수를 정하세요</span>
+        <span id="hintText">👆 클릭 후 위아래로 움직여 점수를 정하고 탭하여 소분류로 진입</span>
         <button class="zoom-out-btn" id="btnZoomOut" onclick="zoomOutToWheel()">◀ 휠 전체보기</button>
       </div>
     </div>
 
     <!-- ========================================================
-         풀스크린 거대 휠 아크 캔버스 영역
+         풀스크린 거대 휠 아크 캔버스 영역 (화면 90% 차지)
          ======================================================== -->
     <div class="full-wheel-canvas-wrap" id="canvasWrap">
       <canvas id="giantArcCanvas"></canvas>
@@ -699,7 +699,7 @@
     let currentTier1List = DATA_DOMAINS.whisky.tier1;
     let selectedTier1Index = 0;
 
-    // 플로우 상태: 'WHEEL_NAV' (Step 1) vs 'ZOOMED_SECTOR' (Step 2)
+    // 플로우 상태
     let currentFlowPhase = 'WHEEL_NAV';
     let zoomProgress = 0.0;
     let targetZoomProgress = 0.0;
@@ -711,7 +711,8 @@
     let spinStartAngle = 0;
     let spinInitialAngle = 0;
 
-    // 제스처 라우팅: 터치 다운 좌표 및 제스처 모드
+    // [중요] 포인터 다운(마우스 클릭/터치) 상태 플래그
+    let isPointerDown = false;
     let touchDownPos = { x: 0, y: 0 };
     let gestureIntent = 'NONE'; // 'NONE' | 'HORIZONTAL_SPIN' | 'VERTICAL_SCORE'
     let activeSubnodeIdx = -1;
@@ -785,7 +786,7 @@
       const count = currentTier1List.length;
       const sectorSpan = (Math.PI * 2) / count;
 
-      // 1. 10점 척도 배경 동심원 눈금
+      // 1. 10점 척도 배경 눈금
       for (let level = 2; level <= 10; level += 2) {
         const r = minR + ((maxR - minR) / 10) * level;
         ctx.beginPath();
@@ -817,7 +818,7 @@
         ctx.lineWidth = isCurrent ? 2.5 : 1.2;
         ctx.stroke();
 
-        // 대분류 외곽 림 라벨
+        // 대분류 외곽 라벨
         const labelR = maxR + 32;
         const lx = cx + labelR * Math.cos(baseAngle);
         const ly = cy + labelR * Math.sin(baseAngle);
@@ -939,7 +940,7 @@
     }
 
     // ==========================================
-    // 3. 통합 제스처: 수평 스와이프(휠 회전) vs 수직 드래그(점수 조절)
+    // 3. 클릭 드래그 제스처 (호버 완전 차단)
     // ==========================================
     function setupUnifiedGestures() {
       const wrap = document.getElementById('canvasWrap');
@@ -957,12 +958,13 @@
       };
 
       const onDown = (e) => {
+        isPointerDown = true;
         const pos = getPos(e);
         touchDownPos = pos;
         gestureIntent = 'NONE';
         activeSubnodeIdx = -1;
 
-        const { cx, cy, maxR } = getWheelGeometry();
+        const { cx, cy } = getWheelGeometry();
         const count = currentTier1List.length;
         const sectorSpan = (Math.PI * 2) / count;
         const baseAngle = -Math.PI / 2 + (selectedTier1Index * sectorSpan) + wheelAngle;
@@ -971,22 +973,19 @@
         const t1 = currentTier1List[selectedTier1Index];
 
         let touchAngle = Math.atan2(pos.y - cy, pos.x - cx);
-        const dist = Math.sqrt((pos.x - cx) ** 2 + (pos.y - cy) ** 2);
 
-        // 휠 회전을 위한 초기 각도 세팅
         spinStartAngle = Math.atan2(pos.y - cy, pos.x - cx);
         spinInitialAngle = wheelAngle;
 
-        // [Step 2: 줌인 상태에서 특정 쐐기 레일 터치인지 확인]
         if (currentFlowPhase === 'ZOOMED_SECTOR' && t1.subnodes.length > 0) {
           const subCount = t1.subnodes.length;
           const totalWedges = subCount + 1;
           const wedgeSpan = sectorSpan / totalWedges;
 
-          // [+] 레일 탭 확인
           const addWStart = startAngle + (subCount * wedgeSpan);
           if (touchAngle >= addWStart && touchAngle <= endAngle) {
             openTagBottomSheet();
+            isPointerDown = false;
             return;
           }
 
@@ -1002,13 +1001,15 @@
       };
 
       const onMove = (e) => {
+        // [중요] 마우스를 누른 상태가 아니면 절대 아무것도 하지 않음!
+        if (!isPointerDown) return;
+
         const pos = getPos(e);
         const dx = pos.rawX - touchDownPos.rawX;
         const dy = pos.rawY - touchDownPos.rawY;
 
-        // 제스처 의도(Intent) 결정: 수평 스와이프 vs 수직 점수 드래그
         if (gestureIntent === 'NONE') {
-          if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+          if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
             if (Math.abs(dx) > Math.abs(dy)) {
               gestureIntent = 'HORIZONTAL_SPIN';
               isSpinningWheel = true;
@@ -1021,7 +1022,7 @@
         const { cx, cy } = getWheelGeometry();
         const dist = Math.sqrt((pos.x - cx) ** 2 + (pos.y - cy) ** 2);
 
-        // 1. 수평 스와이프: 소분류 줌인 상태든 아니든 언제나 거대 휠 회전!
+        // 1. 클릭 후 좌우 드래그: 1:1 리얼타임 휠 회전!
         if (gestureIntent === 'HORIZONTAL_SPIN' || isSpinningWheel) {
           const curAngle = Math.atan2(pos.y - cy, pos.x - cx);
           wheelAngle = spinInitialAngle + (curAngle - spinStartAngle);
@@ -1035,7 +1036,7 @@
             updateHeaderUI();
           }
         }
-        // 2. 수직 드래그: 점수 조절
+        // 2. 클릭 후 위아래 드래그: 점수 조절!
         else if (gestureIntent === 'VERTICAL_SCORE') {
           if (currentFlowPhase === 'WHEEL_NAV') {
             applyParentScoreFromDist(dist);
@@ -1046,18 +1047,22 @@
       };
 
       const onUp = (e) => {
+        if (!isPointerDown) return;
+        isPointerDown = false;
+
         const pos = getPos(e);
         const dx = Math.abs(pos.rawX - touchDownPos.rawX);
         const dy = Math.abs(pos.rawY - touchDownPos.rawY);
 
-        // 탭(Tap) 판정: 이동량이 적고 1단계 모드일 때 점수 영역 탭 시 소분류 확대 진입!
-        if (dx < 12 && dy < 12 && currentFlowPhase === 'WHEEL_NAV') {
+        // 탭 판정: 이동량이 적고 1단계 모드일 때 점수 영역 탭 시 소분류 확대 진입
+        if (dx < 10 && dy < 10 && currentFlowPhase === 'WHEEL_NAV') {
           const t1 = currentTier1List[selectedTier1Index];
           if (t1.intensity > 0) {
             autoZoomInToSector();
           }
         }
 
+        // 손 뗄 때 마그네틱 스냅 안착
         if (isSpinningWheel) {
           isSpinningWheel = false;
           const count = currentTier1List.length;
@@ -1078,6 +1083,11 @@
       wrap.addEventListener('touchstart', onDown, { passive: true });
       window.addEventListener('touchmove', onMove, { passive: true });
       window.addEventListener('touchend', onUp);
+
+      window.addEventListener('blur', () => {
+        isPointerDown = false;
+        isSpinningWheel = false;
+      });
     }
 
     function applyParentScoreFromDist(dist) {
@@ -1105,7 +1115,6 @@
       updateHeaderUI();
     }
 
-    // 탭으로 소분류 줌인 진입
     function autoZoomInToSector() {
       currentFlowPhase = 'ZOOMED_SECTOR';
       targetZoomProgress = 1.0;
@@ -1113,7 +1122,6 @@
       showToast(`🔍 '${currentTier1List[selectedTier1Index].name}' 세부 소분류 평가로 줌인됨!`);
     }
 
-    // 줌아웃 복귀
     function zoomOutToWheel() {
       currentFlowPhase = 'WHEEL_NAV';
       targetZoomProgress = 0.0;
@@ -1136,11 +1144,10 @@
       if (currentFlowPhase === 'WHEEL_NAV') {
         phaseBadge.classList.remove('zoomed');
         phaseText.innerText = `1단계: 대분류 점수 [${t1.intensity.toFixed(1)}/10]`;
-        hintText.innerText = '👆 영역을 위아래로 움직여 점수를 정하고 탭하여 소분류로 진입';
+        hintText.innerText = '👆 클릭 후 위아래로 움직여 점수를 정하고 탭하여 소분류로 진입';
         btnZoomOut.classList.remove('show');
         addTagBtn.classList.remove('show');
 
-        // 점수가 0점보다 크면 탭 줌인 뱃지 노출
         if (t1.intensity > 0) {
           tapBadge.classList.add('show');
           tapScore.innerText = `${t1.intensity.toFixed(1)}점`;
@@ -1150,7 +1157,7 @@
       } else {
         phaseBadge.classList.add('zoomed');
         phaseText.innerText = `2단계: 소분류 평가 (상한: ${t1.intensity.toFixed(1)}점)`;
-        hintText.innerText = '↔ 좌우로 스와이프하면 다음 대분류로 회전 전환됩니다';
+        hintText.innerText = '↔ 클릭 후 좌우로 드래그하면 다음 대분류로 회전 전환됩니다';
         btnZoomOut.classList.add('show');
         tapBadge.classList.remove('show');
 
@@ -1244,7 +1251,7 @@
         fCtx.stroke();
       }
 
-      // 뒷배경: 옥타곤 다각형 레이더 차트
+      // 뒷배경: 옥타곤 다각형
       fCtx.beginPath();
       for (let i = 0; i < count; i++) {
         const angle = -Math.PI / 2 + (i * sectorSpan);
@@ -1275,7 +1282,7 @@
       fCtx.lineWidth = 2.5;
       fCtx.stroke();
 
-      // 전면: 대분류 영역 안에 소분류 쐐기들 채우기
+      // 전면: 소분류 쐐기들
       currentTier1List.forEach((t1, i) => {
         if (t1.intensity === 0) return;
         const startAngle = -Math.PI / 2 + (i * sectorSpan) - sectorSpan / 2;

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flavor Wheel - Two-Phase Zoom-in & 360 Integrated Radar</title>
+  <title>Flavor Wheel - Area Drag, Tag Sheet & Octagon Long-press Radar</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -32,7 +32,6 @@
       /* 모션 토큰 */
       --duration-fast: 150ms;
       --duration-normal: 300ms;
-      --duration-zoom: 450ms;
       --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
     }
 
@@ -195,16 +194,15 @@
       align-items: center;
     }
 
-    /* 줌아웃 버튼 (소분류 평가 중일 때 표시) */
     .zoom-out-btn {
       display: none;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.12);
       border: 1px solid var(--border-subtle);
       color: var(--amber-light);
-      padding: 2px 8px;
+      padding: 3px 8px;
       border-radius: 10px;
       font-size: 10px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
     }
     .zoom-out-btn.show {
@@ -214,7 +212,7 @@
     }
 
     /* ========================================================
-       풀스크린 거대 휠 아크 캔버스 영역
+       풀스크린 거대 휠 아크 캔버스 영역 (화면 90% 차지)
        ======================================================== */
     .full-wheel-canvas-wrap {
       flex: 1;
@@ -236,7 +234,7 @@
       height: 100%;
     }
 
-    /* 회전 가이드 림 인디케이터 화살표 */
+    /* 휠 좌우 회전 힌트 화살표 */
     .rim-guide-arrow {
       position: absolute;
       top: 24%;
@@ -256,6 +254,35 @@
     }
     .rim-guide-arrow.left { left: 10px; }
     .rim-guide-arrow.right { right: 10px; }
+
+    /* 소분류 줌인 상태에서 중앙 [➕ 소분류 태그 추가] 플로팅 버튼 */
+    .floating-add-tag-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 10px 18px;
+      border-radius: 24px;
+      background: rgba(168, 85, 247, 0.25);
+      border: 1.5px dashed var(--purple-custom);
+      color: #E9D5FF;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      z-index: 25;
+      animation: pulseBtn 2s infinite;
+    }
+    .floating-add-tag-btn.show {
+      display: flex;
+    }
+    @keyframes pulseBtn {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.05); }
+    }
 
     /* 하단 플로팅 액션 바 */
     .floating-bottom-bar {
@@ -308,23 +335,73 @@
       transition: all var(--duration-fast) var(--ease-out-cubic);
       white-space: nowrap;
     }
-    .add-tier1-btn:hover {
-      background: rgba(168, 85, 247, 0.3);
+
+    /* ========================================================
+       하단 슬라이드업 소분류 태그 바텀시트
+       ======================================================== */
+    .tag-bottom-sheet {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(18, 22, 31, 0.98);
+      border-top: 1.5px solid var(--amber-dark);
+      border-radius: 24px 24px 0 0;
+      padding: 18px 20px 24px;
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.9);
+      z-index: 50;
+      transform: translateY(100%);
+      transition: transform var(--duration-normal) var(--ease-out-cubic);
+      text-align: left;
+    }
+    .tag-bottom-sheet.show {
+      transform: translateY(0);
+    }
+
+    .sheet-handle {
+      width: 40px; height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      margin: 0 auto 12px;
+    }
+
+    .tag-chips-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 16px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .tag-chip {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-out-cubic);
+    }
+    .tag-chip:hover {
+      border-color: var(--amber-primary);
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--amber-light);
     }
 
     /* ========================================================
-       360도 통합 멀티링 레이더 차트 결과 모달
+       360도 완성형 통합 레이더 차트 모달 & 옥타곤 배경
        ======================================================== */
     .modal-backdrop {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.92);
       backdrop-filter: blur(10px);
       z-index: 100;
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 14px;
     }
     .modal-backdrop.show {
       display: flex;
@@ -340,16 +417,15 @@
       background: var(--surface-dark);
       border: 1.5px solid var(--amber-dark);
       border-radius: var(--radius-lg);
-      padding: 18px 16px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95);
+      padding: 16px 14px;
       text-align: center;
-      max-height: 820px;
+      max-height: 840px;
       overflow-y: auto;
     }
 
     .result-title {
       font-family: 'Cinzel', serif;
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 800;
       color: var(--amber-primary);
       letter-spacing: 1px;
@@ -357,34 +433,32 @@
 
     .final-chart-container {
       position: relative;
-      width: 280px;
-      height: 280px;
-      margin: 10px auto;
+      width: 290px;
+      height: 290px;
+      margin: 8px auto;
+      touch-action: none;
     }
     #finalRadarCanvas {
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
+      cursor: pointer;
     }
 
-    .form-input {
-      width: 100%;
-      background: rgba(14, 17, 23, 0.8);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      color: var(--text-main);
-      padding: 8px 10px;
-      font-size: 12px;
+    /* 롱프레스 팝아웃 하이라이트 뱃지 */
+    .longpress-highlight-badge {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--amber-primary);
+      border-radius: 10px;
+      padding: 8px 12px;
       margin-bottom: 10px;
+      font-size: 12px;
+      color: var(--amber-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .form-label {
-      font-size: 11px;
-      color: var(--text-sub);
-      margin-bottom: 4px;
-      display: block;
-      font-weight: 600;
-      text-align: left;
-    }
+
     .modal-close-btn {
       width: 100%;
       padding: 9px;
@@ -396,7 +470,7 @@
       cursor: pointer;
     }
 
-    /* 토스트 알림 */
+    /* 토스트 */
     .toast-msg {
       position: absolute;
       top: 48px;
@@ -459,18 +533,23 @@
       </div>
 
       <div class="gesture-hint">
-        <span id="hintText">👆 상단 외곽 테두리를 위로 끌어올려 대분류 점수를 정하세요</span>
+        <span id="hintText">👆 차트 영역을 누른 상태에서 위아래로 움직여 점수를 정하세요</span>
         <button class="zoom-out-btn" id="btnZoomOut" onclick="zoomOutToWheel()">◀ 휠 전체보기</button>
       </div>
     </div>
 
     <!-- ========================================================
-         풀스크린 거대 휠 아크 캔버스 영역
+         풀스크린 거대 휠 아크 캔버스 영역 (화면 90% 이상)
          ======================================================== -->
     <div class="full-wheel-canvas-wrap" id="canvasWrap">
       <canvas id="giantArcCanvas"></canvas>
       <div class="rim-guide-arrow left" id="arrowLeft">◀</div>
       <div class="rim-guide-arrow right" id="arrowRight">▶</div>
+
+      <!-- 소분류 줌인 상태에서 소분류가 비었을 때 플로팅 추가 버튼 -->
+      <button class="floating-add-tag-btn" id="floatingAddTagBtn" onclick="openTagBottomSheet()">
+        <span>➕ 소분류 향미 태그 추가하기</span>
+      </button>
     </div>
 
     <!-- 하단 플로팅 액션 바 -->
@@ -484,70 +563,67 @@
     </div>
 
     <!-- ========================================================
-         모달: 360도 완성형 통합 플레이버 휠 레이더 차트 결과 뷰
+         하단 슬라이드업 소분류 추천 태그 바텀시트
+         ======================================================== -->
+    <div class="tag-bottom-sheet" id="tagBottomSheet">
+      <div class="sheet-handle"></div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h4 style="font-size:14px; font-weight:800; color:var(--amber-light);" id="sheetParentTitle">
+          🍯 달콤함 / 바닐라 추천 향미 태그
+        </h4>
+        <button style="background:none; border:none; color:var(--text-sub); font-size:18px; cursor:pointer;" onclick="closeTagBottomSheet()">✕</button>
+      </div>
+      <p style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+        감지하신 향미를 탭하여 쐐기 레일로 차트에 추가하세요.
+      </p>
+
+      <div class="tag-chips-grid" id="tagChipsContainer">
+        <!-- JS로 추천 태그 칩 렌더링 -->
+      </div>
+
+      <div style="display:flex; gap:6px;">
+        <input type="text" class="tag-chip" style="flex:1; background:rgba(0,0,0,0.4); border-color:var(--purple-custom); color:#FFF;" id="customTagInput" placeholder="직접 새 향미 이름 입력...">
+        <button class="result-view-btn" style="flex:0 0 80px; padding:6px; font-size:11px; background:linear-gradient(135deg, #A855F7, #7E22CE); color:#FFF;" onclick="addCustomSubnodeFromInput()">추가</button>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         모달: 360도 완성형 옥타곤 배경 & 롱프레스 팝아웃 레이더 차트
          ======================================================== -->
     <div class="modal-backdrop" id="resultModal">
       <div class="result-card-box">
-        <div style="font-size:24px;">🏆</div>
+        <div style="font-size:22px;">🏆</div>
         <div class="result-title">FLAVOR WHEEL TASTING CARD</div>
-        <p style="font-size:11px; color:var(--text-sub); margin-top:2px;">
-          발베니 12년 더블우드 • 360° 대분류 & 소분류 통합 레이더
+        <p style="font-size:10px; color:var(--text-sub); margin-top:2px;">
+          발베니 12년 더블우드 • 옥타곤 대분류 배경 & 360° 소분류 멀티링
         </p>
 
-        <div class="final-chart-container">
-          <canvas id="finalRadarCanvas" width="560" height="560"></canvas>
+        <!-- 롱프레스 하이라이트 안내 및 표시창 -->
+        <div class="longpress-highlight-badge" id="longpressBadge">
+          <span id="lpTitle">💡 소분류 쐐기를 길게 누르면(Long-press) 팝아웃 확대됩니다</span>
+          <span style="font-weight:800; color:var(--amber-primary);" id="lpScore"></span>
         </div>
 
-        <div style="background:rgba(0,0,0,0.4); border:1px solid var(--border-subtle); border-radius:10px; padding:10px; margin-bottom:12px; font-size:11px; color:var(--text-sub); text-align:left; line-height:1.4;">
-          <div style="color:var(--amber-light); font-weight:700; margin-bottom:4px;">📊 테이스팅 결과 요약</div>
-          <div id="resultSummaryText">대분류 및 각 섹터 내부의 소분류 쐐기 점수가 완벽히 집계되었습니다.</div>
+        <div class="final-chart-container" id="finalChartContainer">
+          <canvas id="finalRadarCanvas" width="580" height="580"></canvas>
         </div>
 
-        <button class="result-view-btn" style="width:100%; margin-bottom:8px;" onclick="confirmSaveNote()">
+        <button class="result-view-btn" style="width:100%; margin-bottom:6px;" onclick="confirmSaveNote()">
           <span>💾 Isar 로컬 DB에 영속화 (0ms)</span>
         </button>
         <button class="modal-close-btn" onclick="closeFinalResultModal()">수정하러 돌아가기</button>
       </div>
     </div>
 
-    <!-- 모달: 새 소분류 추가 -->
-    <div class="modal-backdrop" id="addSubnodeModal">
-      <div class="modal-box" style="text-align:left;">
-        <h4 style="color:#E9D5FF; font-size:13px; font-weight:700; margin-bottom:4px;">➕ 새 소분류 쐐기 레일 추가</h4>
-        <p style="font-size:10px; color:var(--text-sub); margin-bottom:10px;">
-          '<span id="modalTargetTier1" style="color:var(--amber-light); font-weight:600;">Sweet</span>' 섹터 안에 새 레일을 생성합니다.
-        </p>
-
-        <label class="form-label">소분류 향미 이름</label>
-        <input type="text" class="form-input" id="newSubnodeName" placeholder="예: 군밤, 마시멜로, 메이플, 유자...">
-
-        <div style="display:flex; gap:8px;">
-          <button class="result-view-btn" style="flex:1; background:linear-gradient(135deg, #A855F7, #7E22CE); color:#FFF;" onclick="confirmAddSubnode()">
-            <span>레일 생성</span>
-          </button>
-          <button class="modal-close-btn" style="flex:1;" onclick="closeAddSubnodeModal()">취소</button>
-        </div>
-      </div>
-    </div>
-
     <!-- 모달: 새 대분류 추가 -->
     <div class="modal-backdrop" id="addTier1Modal">
-      <div class="modal-box" style="text-align:left;">
+      <div class="modal-box" style="background:var(--surface-dark); border:1.5px solid var(--purple-custom); border-radius:16px; padding:18px;">
         <h4 style="color:#E9D5FF; font-size:13px; font-weight:700; margin-bottom:4px;">➕ 새 대분류 부채꼴 섹터 추가</h4>
-        <p style="font-size:10px; color:var(--text-sub); margin-bottom:10px;">
-          거대 휠에 새로운 대분류 섹터를 추가합니다.
-        </p>
-
-        <label class="form-label">대분류 이름 (한글/영문)</label>
-        <input type="text" class="form-input" id="newTier1Name" placeholder="예: 세이보리/감칠맛 (Savory)">
-
-        <label class="form-label">아이콘 (이모지)</label>
-        <input type="text" class="form-input" id="newTier1Icon" value="🍄" placeholder="예: 🍄, 🌿, 🍫">
-
-        <div style="display:flex; gap:8px; margin-top:10px;">
-          <button class="result-view-btn" style="flex:1; background:linear-gradient(135deg, #A855F7, #7E22CE); color:#FFF;" onclick="confirmAddTier1()">
-            <span>대분류 생성</span>
-          </button>
+        <p style="font-size:10px; color:var(--text-sub); margin-bottom:10px;">거대 휠에 새로운 대분류 섹터를 생성합니다.</p>
+        <input type="text" class="tag-chip" style="width:100%; margin-bottom:8px; background:rgba(0,0,0,0.4); color:#FFF;" id="newTier1Name" placeholder="예: 세이보리/감칠맛 (Savory)">
+        <input type="text" class="tag-chip" style="width:100%; margin-bottom:12px; background:rgba(0,0,0,0.4); color:#FFF;" id="newTier1Icon" value="🍄" placeholder="아이콘 이모지">
+        <div style="display:flex; gap:8px;">
+          <button class="result-view-btn" style="flex:1; background:linear-gradient(135deg, #A855F7, #7E22CE); color:#FFF;" onclick="confirmAddTier1()">생성</button>
           <button class="modal-close-btn" style="flex:1;" onclick="closeAddTier1Modal()">취소</button>
         </div>
       </div>
@@ -557,125 +633,43 @@
 
   <script>
     // ==========================================
-    // 1. 도메인별 데이터 모델 (초기값: 모두 0.0점 시작)
+    // 1. 도메인별 추천 디폴트 태그 사전 (모두 0.0점 시작)
     // ==========================================
+    const DEFAULT_PRESET_TAGS = {
+      sweet: ['바닐라', '벌꿀', '캐러멜', '토피', '메이플 시럽', '초콜릿', '흑당', '크렘브륄레'],
+      woody: ['새 오크', '삼나무', '가죽', '담뱃잎', '탄 나무', '정향 오크'],
+      winey: ['셰리 와인', '건포도', '무화과', '다크베리', '프룬', '포트와인'],
+      fruity: ['풋사과', '배', '시트러스(감귤)', '말린 살구', '열대과일', '복숭아'],
+      malty: ['보리/맥아', '비스킷', '토스트', '구운 아몬드', '헤이즐넛'],
+      spicy: ['시나몬(계피)', '흑후추', '생강', '정향', '육두구'],
+      floral: ['들꽃', '라벤더', '장미꽃잎', '풀내음', '허브차'],
+      smoky: ['이탄(Peat)', '훈연향', '장작재', '타르', '해초/요오드']
+    };
+
     const DATA_DOMAINS = {
       whisky: {
         tier1: [
-          {
-            id: 'sweet', name: '달콤함/바닐라', en: 'Sweet', icon: '🍯', color: '#F59E0B',
-            intensity: 0.0,
-            subnodes: [
-              { id: 's_vanilla', name: '바닐라', score: 0.0, isCustom: false },
-              { id: 's_honey', name: '벌꿀', score: 0.0, isCustom: false },
-              { id: 's_caramel', name: '캐러멜', score: 0.0, isCustom: false },
-              { id: 's_toffee', name: '토피', score: 0.0, isCustom: false }
-            ]
-          },
-          {
-            id: 'woody', name: '오크/우디', en: 'Woody', icon: '🪵', color: '#A855F7',
-            intensity: 0.0,
-            subnodes: [
-              { id: 'w_oak', name: '새 오크', score: 0.0, isCustom: false },
-              { id: 'w_cedar', name: '삼나무', score: 0.0, isCustom: false },
-              { id: 'w_leather', name: '가죽', score: 0.0, isCustom: false }
-            ]
-          },
-          {
-            id: 'winey', name: '와인/셰리', en: 'Winey', icon: '🍷', color: '#F43F5E',
-            intensity: 0.0,
-            subnodes: [
-              { id: 'wi_sherry', name: '셰리 와인', score: 0.0, isCustom: false },
-              { id: 'wi_raisin', name: '건포도', score: 0.0, isCustom: false }
-            ]
-          },
-          {
-            id: 'fruity', name: '과일/프루티', en: 'Fruity', icon: '🍎', color: '#F97316',
-            intensity: 0.0,
-            subnodes: [
-              { id: 'f_apple', name: '사과/배', score: 0.0, isCustom: false },
-              { id: 'f_citrus', name: '시트러스', score: 0.0, isCustom: false },
-              { id: 'f_dried', name: '건과일', score: 0.0, isCustom: false }
-            ]
-          },
-          {
-            id: 'malty', name: '곡물/몰트', en: 'Malty', icon: '🌾', color: '#10B981',
-            intensity: 0.0,
-            subnodes: [
-              { id: 'm_barley', name: '보리/맥아', score: 0.0, isCustom: false },
-              { id: 'm_biscuit', name: '비스킷', score: 0.0, isCustom: false }
-            ]
-          },
-          {
-            id: 'spicy', name: '스파이스', en: 'Spicy', icon: '🌶️', color: '#6366F1',
-            intensity: 0.0,
-            subnodes: [
-              { id: 'sp_cinnamon', name: '시나몬', score: 0.0, isCustom: false },
-              { id: 'sp_pepper', name: '흑후추', score: 0.0, isCustom: false }
-            ]
-          },
-          {
-            id: 'floral', name: '꽃/플로럴', en: 'Floral', icon: '🌸', color: '#EC4899',
-            intensity: 0.0,
-            subnodes: [
-              { id: 'fl_wild', name: '들꽃', score: 0.0, isCustom: false },
-              { id: 'fl_herb', name: '풀내음', score: 0.0, isCustom: false }
-            ]
-          },
-          {
-            id: 'smoky', name: '피트/스모키', en: 'Peaty', icon: '🔥', color: '#EF4444',
-            intensity: 0.0,
-            subnodes: [
-              { id: 'sm_smoke', name: '훈연', score: 0.0, isCustom: false },
-              { id: 'sm_peat', name: '이탄', score: 0.0, isCustom: false }
-            ]
-          }
+          { id: 'sweet', name: '달콤함/바닐라', en: 'Sweet', icon: '🍯', color: '#F59E0B', intensity: 0.0, subnodes: [] },
+          { id: 'woody', name: '오크/우디', en: 'Woody', icon: '🪵', color: '#A855F7', intensity: 0.0, subnodes: [] },
+          { id: 'winey', name: '와인/셰리', en: 'Winey', icon: '🍷', color: '#F43F5E', intensity: 0.0, subnodes: [] },
+          { id: 'fruity', name: '과일/프루티', en: 'Fruity', icon: '🍎', color: '#F97316', intensity: 0.0, subnodes: [] },
+          { id: 'malty', name: '곡물/몰트', en: 'Malty', icon: '🌾', color: '#10B981', intensity: 0.0, subnodes: [] },
+          { id: 'spicy', name: '스파이스', en: 'Spicy', icon: '🌶️', color: '#6366F1', intensity: 0.0, subnodes: [] },
+          { id: 'floral', name: '꽃/플로럴', en: 'Floral', icon: '🌸', color: '#EC4899', intensity: 0.0, subnodes: [] },
+          { id: 'smoky', name: '피트/스모키', en: 'Peaty', icon: '🔥', color: '#EF4444', intensity: 0.0, subnodes: [] }
         ]
       },
       wine: {
         tier1: [
-          {
-            id: 'black_fruit', name: '블랙프루트', en: 'Black Fruit', icon: '🫐', color: '#9333EA',
-            intensity: 0.0,
-            subnodes: [
-              { id: 'bf_cassis', name: '카시스', score: 0.0, isCustom: false },
-              { id: 'bf_blackberry', name: '블랙베리', score: 0.0, isCustom: false }
-            ]
-          },
-          {
-            id: 'oak_wine', name: '프렌치오크', en: 'French Oak', icon: '🪵', color: '#D97706',
-            intensity: 0.0,
-            subnodes: [
-              { id: 'ow_cedar', name: '시더우드', score: 0.0, isCustom: false },
-              { id: 'ow_vanilla', name: '바닐라빈', score: 0.0, isCustom: false }
-            ]
-          },
-          {
-            id: 'floral_wine', name: '플로럴', en: 'Floral', icon: '🌸', color: '#EC4899',
-            intensity: 0.0,
-            subnodes: [
-              { id: 'fw_violet', name: '제비꽃', score: 0.0, isCustom: false }
-            ]
-          }
+          { id: 'black_fruit', name: '블랙프루트', en: 'Black Fruit', icon: '🫐', color: '#9333EA', intensity: 0.0, subnodes: [] },
+          { id: 'oak_wine', name: '프렌치오크', en: 'French Oak', icon: '🪵', color: '#D97706', intensity: 0.0, subnodes: [] },
+          { id: 'floral_wine', name: '플로럴', en: 'Floral', icon: '🌸', color: '#EC4899', intensity: 0.0, subnodes: [] }
         ]
       },
       coffee: {
         tier1: [
-          {
-            id: 'jasmine', name: '자스민/꽃', en: 'Floral', icon: '🌼', color: '#EAB308',
-            intensity: 0.0,
-            subnodes: [
-              { id: 'j_flower', name: '자스민', score: 0.0, isCustom: false },
-              { id: 'j_tea', name: '백차', score: 0.0, isCustom: false }
-            ]
-          },
-          {
-            id: 'citrus', name: '시트러스', en: 'Citrus', icon: '🍋', color: '#F97316',
-            intensity: 0.0,
-            subnodes: [
-              { id: 'c_bergamot', name: '베르가못', score: 0.0, isCustom: false }
-            ]
-          }
+          { id: 'jasmine', name: '자스민/꽃', en: 'Floral', icon: '🌼', color: '#EAB308', intensity: 0.0, subnodes: [] },
+          { id: 'citrus', name: '시트러스', en: 'Citrus', icon: '🍋', color: '#F97316', intensity: 0.0, subnodes: [] }
         ]
       }
     };
@@ -684,21 +678,25 @@
     let currentTier1List = DATA_DOMAINS.whisky.tier1;
     let selectedTier1Index = 0;
 
-    // 플로우 상태: 'WHEEL_NAV' (Step 1) vs 'ZOOMED_SECTOR' (Step 2)
-    let currentFlowPhase = 'WHEEL_NAV';
-    let zoomProgress = 0.0; // 0.0 (휠 전체뷰) ~ 1.0 (섹터 줌인뷰)
+    // 2단계 플로우 상태
+    let currentFlowPhase = 'WHEEL_NAV'; // 'WHEEL_NAV' (Step 1) vs 'ZOOMED_SECTOR' (Step 2)
+    let zoomProgress = 0.0;
     let targetZoomProgress = 0.0;
 
-    // 휠 회전 각도
+    // 휠 회전 물리
     let wheelAngle = 0;
     let targetWheelAngle = 0;
     let isSpinningWheel = false;
     let spinStartAngle = 0;
     let spinInitialAngle = 0;
 
-    // 인차트 드래그 제스처
-    let isDraggingParentRim = false;
-    let activeDraggingKnob = null;
+    // 면적 드래그 인터랙션 상태
+    let isAreaDraggingParent = false;
+    let activeDraggingSubnodeIdx = -1;
+
+    // 완성 차트 롱프레스 상태
+    let activeLongpressSubnode = null; // { tier1Idx, subnodeIdx }
+    let longpressTimer = null;
 
     let canvas, ctx;
 
@@ -709,7 +707,8 @@
       resizeCanvas();
       window.addEventListener('resize', resizeCanvas);
 
-      setupTwoPhaseGestures();
+      setupAreaDragGestures();
+      setupFinalChartLongpress();
       snapToTier1(0);
       startRenderLoop();
     };
@@ -721,36 +720,30 @@
     }
 
     // ==========================================
-    // 2. 2단계 줌인 렌더링 루프 (60fps Canvas)
+    // 2. 줌인 풀스크린 거대 휠 렌더링 엔진 (60fps Canvas)
     // ==========================================
     function startRenderLoop() {
       function frame() {
-        // 휠 회전 보간
         if (!isSpinningWheel) {
           const diff = targetWheelAngle - wheelAngle;
           if (Math.abs(diff) > 0.001) wheelAngle += diff * 0.16;
           else wheelAngle = targetWheelAngle;
         }
 
-        // 줌인/줌아웃 트랜지션 보간
         const zoomDiff = targetZoomProgress - zoomProgress;
-        if (Math.abs(zoomDiff) > 0.005) {
-          zoomProgress += zoomDiff * 0.14;
-        } else {
-          zoomProgress = targetZoomProgress;
-        }
+        if (Math.abs(zoomDiff) > 0.005) zoomProgress += zoomDiff * 0.14;
+        else zoomProgress = targetZoomProgress;
 
-        drawTwoPhaseGiantWheel();
+        drawFullGiantWheelArc();
         requestAnimationFrame(frame);
       }
       requestAnimationFrame(frame);
     }
 
-    function getDynamicGeometry() {
+    function getWheelGeometry() {
       const w = canvas.width;
       const h = canvas.height;
 
-      // 줌 진행도(zoomProgress)에 따라 가상 원의 중심과 반경이 웅장하게 확장
       const baseCy = h * 1.14;
       const zoomedCy = h * 0.98;
       const cy = baseCy + (zoomedCy - baseCy) * zoomProgress;
@@ -761,18 +754,17 @@
       const maxR = baseMaxR + (zoomedMaxR - baseMaxR) * zoomProgress;
 
       const minR = h * 0.22;
-
       return { w, h, cx, cy, maxR, minR };
     }
 
-    function drawTwoPhaseGiantWheel() {
-      const { w, h, cx, cy, maxR, minR } = getDynamicGeometry();
+    function drawFullGiantWheelArc() {
+      const { w, h, cx, cy, maxR, minR } = getWheelGeometry();
       ctx.clearRect(0, 0, w, h);
 
       const count = currentTier1List.length;
       const sectorSpan = (Math.PI * 2) / count;
 
-      // 1. 10점 척도 동심원 호
+      // 1. 10점 척도 배경 동심원 눈금
       for (let level = 2; level <= 10; level += 2) {
         const r = minR + ((maxR - minR) / 10) * level;
         ctx.beginPath();
@@ -787,7 +779,7 @@
         ctx.fillText(`${level}`, cx - 20, cy - r);
       }
 
-      // 2. 대분류 섹터 렌더링
+      // 2. 대분류 섹터들 렌더링
       currentTier1List.forEach((t1, i) => {
         const baseAngle = -Math.PI / 2 + (i * sectorSpan) + wheelAngle;
         const startAngle = baseAngle - sectorSpan / 2;
@@ -804,14 +796,7 @@
         ctx.lineWidth = isCurrent ? 2.5 : 1.2;
         ctx.stroke();
 
-        // 대분류 외곽 림(Rim) 아크 라인
-        ctx.beginPath();
-        ctx.arc(cx, cy, intensityR > minR ? intensityR : minR + 6, startAngle, endAngle);
-        ctx.strokeStyle = isCurrent ? (t1.intensity > 0 ? '#FBBF24' : 'rgba(245, 158, 11, 0.5)') : 'rgba(255, 255, 255, 0.2)';
-        ctx.lineWidth = isCurrent ? (t1.intensity > 0 ? 5 : 3) : 2;
-        ctx.stroke();
-
-        // 대분류 외곽 라벨
+        // 대분류 외곽 림 라벨
         const labelR = maxR + 32;
         const lx = cx + labelR * Math.cos(baseAngle);
         const ly = cy + labelR * Math.sin(baseAngle);
@@ -821,58 +806,39 @@
         ctx.textBaseline = 'middle';
         ctx.fillText(`${t1.icon} ${t1.name.split('/')[0]}`, lx, ly);
 
-        // ========================================================
-        // [Step 1: 대분류 점수 설정 모드 (zoomProgress < 0.5)]
-        // ========================================================
+        // [Step 1: 대분류 면적 드래그 조작 뷰 (zoomProgress < 0.5)]
         if (zoomProgress < 0.5) {
           if (isCurrent) {
-            // 대분류 영역 채우기
+            // 대분류 게이지 채우기
             if (t1.intensity > 0) {
               ctx.beginPath();
               ctx.moveTo(cx, cy);
               ctx.arc(cx, cy, intensityR, startAngle, endAngle);
               ctx.closePath();
-              ctx.fillStyle = 'rgba(245, 158, 11, 0.3)';
+              ctx.fillStyle = 'rgba(245, 158, 11, 0.35)';
               ctx.fill();
             }
 
-            // 대분류 외곽 림 조작 노브 (위아래 드래그 핸들)
-            const kx = cx + (intensityR > minR ? intensityR : minR + 10) * Math.cos(baseAngle);
-            const ky = cy + (intensityR > minR ? intensityR : minR + 10) * Math.sin(baseAngle);
-
+            // 대분류 아크 라인
             ctx.beginPath();
-            ctx.arc(kx, ky, 15, 0, Math.PI * 2);
-            ctx.fillStyle = '#F59E0B';
-            ctx.fill();
-            ctx.strokeStyle = '#FFF';
-            ctx.lineWidth = 3;
-            ctx.shadowColor = 'rgba(245, 158, 11, 0.9)';
-            ctx.shadowBlur = 15;
+            ctx.arc(cx, cy, intensityR > minR ? intensityR : minR + 6, startAngle, endAngle);
+            ctx.strokeStyle = t1.intensity > 0 ? '#FBBF24' : 'rgba(245, 158, 11, 0.5)';
+            ctx.lineWidth = t1.intensity > 0 ? 5 : 3;
             ctx.stroke();
-            ctx.shadowBlur = 0;
 
-            ctx.font = '800 15px Pretendard';
-            ctx.fillStyle = '#000';
-            ctx.fillText(`${t1.intensity.toFixed(1)}`, kx, ky);
+            // 면적 드래그 가이드 핸들/라벨
+            const mx = cx + (intensityR > minR ? intensityR : minR + 10) * Math.cos(baseAngle);
+            const my = cy + (intensityR > minR ? intensityR : minR + 10) * Math.sin(baseAngle);
 
-            // 가이드 텍스트
-            if (t1.intensity === 0) {
-              ctx.font = '600 13px Pretendard';
-              ctx.fillStyle = '#FDE68A';
-              ctx.fillText('▲ 노란 점을 위로 밀어 점수를 정하세요', kx, ky - 30);
-            }
+            ctx.font = '800 16px Pretendard';
+            ctx.fillStyle = '#FBBF24';
+            ctx.fillText(`▲ ${t1.intensity.toFixed(1)} / 10`, mx, my - 12);
           }
         }
 
-        // ========================================================
-        // [Step 2: 자동 줌인 & 소분류 쐐기 레일 평가 (zoomProgress >= 0.5)]
-        // ========================================================
+        // [Step 2: 줌인 소분류 쐐기 레일 면적 드래그 뷰 (zoomProgress >= 0.5)]
         if (zoomProgress >= 0.5 && isCurrent) {
-          const subCount = t1.subnodes.length;
-          const totalWedges = subCount + 1;
-          const wedgeSpan = sectorSpan / totalWedges;
-
-          // 대분류가 설정한 영역(Cap) 전체를 환한 부채꼴로 채우기
+          // 대분류가 확보한 Cap 영역 배경
           ctx.beginPath();
           ctx.moveTo(cx, cy);
           ctx.arc(cx, cy, intensityR, startAngle, endAngle);
@@ -880,98 +846,91 @@
           ctx.fillStyle = 'rgba(245, 158, 11, 0.15)';
           ctx.fill();
 
-          t1.subnodes.forEach((sub, sIdx) => {
-            const wStart = startAngle + (sIdx * wedgeSpan);
-            const wEnd = wStart + wedgeSpan;
-            const wMid = (wStart + wEnd) / 2;
+          const subCount = t1.subnodes.length;
 
-            // 소분류 점수는 대분류 상한선(intensityR) 내에서 렌더링
-            const fillR = minR + ((maxR - minR) / 10) * sub.score;
+          if (subCount > 0) {
+            const totalWedges = subCount + 1;
+            const wedgeSpan = sectorSpan / totalWedges;
 
-            // 쐐기 레일 게이지 채우기
-            if (sub.score > 0) {
+            t1.subnodes.forEach((sub, sIdx) => {
+              const wStart = startAngle + (sIdx * wedgeSpan);
+              const wEnd = wStart + wedgeSpan;
+              const wMid = (wStart + wEnd) / 2;
+
+              const fillR = minR + ((maxR - minR) / 10) * sub.score;
+
+              // 쐐기 레일 면적 게이지 채우기
+              if (sub.score > 0) {
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, fillR, wStart + 0.015, wEnd - 0.015);
+                ctx.closePath();
+
+                const grad = ctx.createRadialGradient(cx, cy, minR, cx, cy, maxR);
+                grad.addColorStop(0, 'rgba(245, 158, 11, 0.7)');
+                grad.addColorStop(1, 'rgba(220, 38, 38, 0.45)');
+                ctx.fillStyle = grad;
+                ctx.fill();
+              }
+
+              // 쐐기 레일 외곽선
               ctx.beginPath();
-              ctx.moveTo(cx, cy);
-              ctx.arc(cx, cy, fillR, wStart + 0.015, wEnd - 0.015);
-              ctx.closePath();
+              ctx.arc(cx, cy, intensityR, wStart + 0.015, wEnd - 0.015);
+              ctx.strokeStyle = '#FBBF24';
+              ctx.lineWidth = 2.5;
+              ctx.stroke();
 
-              const grad = ctx.createRadialGradient(cx, cy, minR, cx, cy, maxR);
-              grad.addColorStop(0, 'rgba(245, 158, 11, 0.65)');
-              grad.addColorStop(1, 'rgba(220, 38, 38, 0.4)');
-              ctx.fillStyle = grad;
-              ctx.fill();
-            }
+              // 레일 중심선
+              ctx.beginPath();
+              ctx.moveTo(cx + minR * Math.cos(wMid), cy + minR * Math.sin(wMid));
+              ctx.lineTo(cx + intensityR * Math.cos(wMid), cy + intensityR * Math.sin(wMid));
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+              ctx.lineWidth = 1;
+              ctx.stroke();
 
-            // 쐐기 레일 경계선
+              // 소분류 라벨 & 점수
+              const lx = cx + (intensityR * 0.65) * Math.cos(wMid);
+              const ly = cy + (intensityR * 0.65) * Math.sin(wMid);
+
+              ctx.font = '700 15px Pretendard';
+              ctx.fillStyle = '#FFF';
+              ctx.textAlign = 'center';
+              ctx.fillText(sub.name, lx, ly - 8);
+
+              ctx.font = '800 14px Pretendard';
+              ctx.fillStyle = '#FDE68A';
+              ctx.fillText(`${sub.score.toFixed(1)} 점`, lx, ly + 12);
+            });
+
+            // 마지막 [➕ 태그 추가] 레일
+            const addWStart = startAngle + (subCount * wedgeSpan);
+            const addWMid = addWStart + wedgeSpan / 2;
+            const addR = minR + ((maxR - minR) / 10) * 4.0;
+            const ax = cx + addR * Math.cos(addWMid);
+            const ay = cy + addR * Math.sin(addWMid);
+
             ctx.beginPath();
-            ctx.arc(cx, cy, intensityR, wStart + 0.015, wEnd - 0.015);
-            ctx.strokeStyle = '#FBBF24';
-            ctx.lineWidth = 2.5;
-            ctx.stroke();
-
-            // 레일 중심선
-            ctx.beginPath();
-            ctx.moveTo(cx + minR * Math.cos(wMid), cy + minR * Math.sin(wMid));
-            ctx.lineTo(cx + intensityR * Math.cos(wMid), cy + intensityR * Math.sin(wMid));
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
-
-            // 소분류 슬라이드 노브
-            const kx = cx + fillR * Math.cos(wMid);
-            const ky = cy + fillR * Math.sin(wMid);
-
-            ctx.beginPath();
-            ctx.arc(kx, ky, 14, 0, Math.PI * 2);
-            ctx.fillStyle = sub.score > 0 ? '#FFF' : '#475569';
+            ctx.arc(ax, ay, 16, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(168, 85, 247, 0.3)';
             ctx.fill();
-            ctx.strokeStyle = '#F59E0B';
-            ctx.lineWidth = 3.5;
+            ctx.strokeStyle = '#D8B4FE';
+            ctx.lineWidth = 2;
             ctx.stroke();
 
-            // 소분류 이름 & 점수 라벨
-            const labelDist = fillR > maxR * 0.6 ? fillR - 36 : fillR + 36;
-            const lx = cx + labelDist * Math.cos(wMid);
-            const ly = cy + labelDist * Math.sin(wMid);
-
-            ctx.font = '700 15px Pretendard';
-            ctx.fillStyle = '#FFF';
+            ctx.font = 'bold 18px Pretendard';
+            ctx.fillStyle = '#E9D5FF';
             ctx.textAlign = 'center';
-            ctx.fillText(sub.name, lx, ly - 8);
-
-            ctx.font = '800 14px Pretendard';
-            ctx.fillStyle = '#F59E0B';
-            ctx.fillText(`${sub.score.toFixed(1)} / ${t1.intensity.toFixed(1)}`, lx, ly + 12);
-          });
-
-          // 마지막 [➕ 새 소분류 레일]
-          const addWStart = startAngle + (subCount * wedgeSpan);
-          const addWMid = addWStart + wedgeSpan / 2;
-          const addR = minR + ((maxR - minR) / 10) * 4.0;
-          const ax = cx + addR * Math.cos(addWMid);
-          const ay = cy + addR * Math.sin(addWMid);
-
-          ctx.beginPath();
-          ctx.arc(ax, ay, 15, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(168, 85, 247, 0.3)';
-          ctx.fill();
-          ctx.strokeStyle = '#D8B4FE';
-          ctx.lineWidth = 2;
-          ctx.stroke();
-
-          ctx.font = 'bold 16px Pretendard';
-          ctx.fillStyle = '#E9D5FF';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('+', ax, ay);
+            ctx.textBaseline = 'middle';
+            ctx.fillText('+', ax, ay);
+          }
         }
       });
     }
 
     // ==========================================
-    // 3. 인차트 2단계 제스처 핸들링
+    // 3. 면적 터치 위아래 드래그 제스처 핸들링
     // ==========================================
-    function setupTwoPhaseGestures() {
+    function setupAreaDragGestures() {
       const wrap = document.getElementById('canvasWrap');
 
       const getPos = (e) => {
@@ -986,23 +945,25 @@
 
       const onDown = (e) => {
         const { x, y } = getPos(e);
-        const { cx, cy, maxR, minR } = getDynamicGeometry();
+        const { cx, cy, maxR, minR } = getWheelGeometry();
 
         const count = currentTier1List.length;
         const sectorSpan = (Math.PI * 2) / count;
         const baseAngle = -Math.PI / 2 + (selectedTier1Index * sectorSpan) + wheelAngle;
         const startAngle = baseAngle - sectorSpan / 2;
+        const endAngle = baseAngle + sectorSpan / 2;
         const t1 = currentTier1List[selectedTier1Index];
 
-        // [Step 1: 휠 네비게이션 / 대분류 림 드래그 모드]
+        // [Step 1: 대분류 면적 터치 위아래 드래그]
         if (currentFlowPhase === 'WHEEL_NAV') {
-          const intensityR = minR + ((maxR - minR) / 10) * t1.intensity;
-          const kx = cx + (intensityR > minR ? intensityR : minR + 10) * Math.cos(baseAngle);
-          const ky = cy + (intensityR > minR ? intensityR : minR + 10) * Math.sin(baseAngle);
+          // 터치한 각도 계산
+          let touchAngle = Math.atan2(y - cy, x - cx);
+          const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
 
-          // 대분류 림 노브 터치 판정
-          if (Math.sqrt((x - kx) ** 2 + (y - ky) ** 2) < 45) {
-            isDraggingParentRim = true;
+          // 현재 대분류 섹터 내부 면적 터치 판정
+          if (touchAngle >= startAngle && touchAngle <= endAngle && dist <= maxR * 1.1) {
+            isAreaDraggingParent = true;
+            applyParentScoreFromDist(dist);
             return;
           }
 
@@ -1012,50 +973,44 @@
           spinInitialAngle = wheelAngle;
         }
 
-        // [Step 2: 줌인된 소분류 쐐기 레일 조작 모드]
+        // [Step 2: 줌인 소분류 쐐기 레일 면적 터치 위아래 드래그]
         else if (currentFlowPhase === 'ZOOMED_SECTOR') {
           const subCount = t1.subnodes.length;
+          if (subCount === 0) return;
+
           const totalWedges = subCount + 1;
           const wedgeSpan = sectorSpan / totalWedges;
+          let touchAngle = Math.atan2(y - cy, x - cx);
+          const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
 
-          // 소분류 노브 터치 판정
-          for (let sIdx = 0; sIdx < subCount; sIdx++) {
-            const sub = t1.subnodes[sIdx];
-            const wMid = startAngle + (sIdx * wedgeSpan) + wedgeSpan / 2;
-            const fillR = minR + ((maxR - minR) / 10) * sub.score;
-            const kx = cx + fillR * Math.cos(wMid);
-            const ky = cy + fillR * Math.sin(wMid);
-
-            if (Math.sqrt((x - kx) ** 2 + (y - ky) ** 2) < 42) {
-              activeDraggingKnob = { subnodeIdx: sIdx };
-              return;
-            }
+          // [+] 태그 추가 레일 탭 판정
+          const addWStart = startAngle + (subCount * wedgeSpan);
+          if (touchAngle >= addWStart && touchAngle <= endAngle) {
+            openTagBottomSheet();
+            return;
           }
 
-          // [+] 새 소분류 추가 탭 판정
-          const addWMid = startAngle + (subCount * wedgeSpan) + wedgeSpan / 2;
-          const addR = minR + ((maxR - minR) / 10) * 4.0;
-          const ax = cx + addR * Math.cos(addWMid);
-          const ay = cy + addR * Math.sin(addWMid);
-          if (Math.sqrt((x - ax) ** 2 + (y - ay) ** 2) < 35) {
-            openAddSubnodeModal();
+          // 어느 쐐기 레일 영역인지 판정
+          for (let sIdx = 0; sIdx < subCount; sIdx++) {
+            const wStart = startAngle + (sIdx * wedgeSpan);
+            const wEnd = wStart + wedgeSpan;
+            if (touchAngle >= wStart && touchAngle <= wEnd) {
+              activeDraggingSubnodeIdx = sIdx;
+              applySubnodeScoreFromDist(sIdx, dist);
+              return;
+            }
           }
         }
       };
 
       const onMove = (e) => {
         const { x, y } = getPos(e);
-        const { cx, cy, maxR, minR } = getDynamicGeometry();
+        const { cx, cy } = getWheelGeometry();
+        const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
 
-        if (isDraggingParentRim) {
-          // 대분류 점수 드래그 (0.0 ~ 10.0)
-          const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
-          let newScore = ((dist - minR) / (maxR - minR)) * 10;
-          newScore = Math.min(10.0, Math.max(0.0, newScore));
-          currentTier1List[selectedTier1Index].intensity = Math.round(newScore * 10) / 10;
-          updateHeaderUI();
+        if (isAreaDraggingParent) {
+          applyParentScoreFromDist(dist);
         } else if (isSpinningWheel) {
-          // 휠 각도 회전
           const curAngle = Math.atan2(y - cy, x - cx);
           wheelAngle = spinInitialAngle + (curAngle - spinStartAngle);
 
@@ -1067,25 +1022,16 @@
             selectedTier1Index = idx;
             updateHeaderUI();
           }
-        } else if (activeDraggingKnob) {
-          // 소분류 점수 드래그 (대분류 점수가 최대 상한선!)
-          const t1 = currentTier1List[selectedTier1Index];
-          const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
-          let newScore = ((dist - minR) / (maxR - minR)) * 10;
-          // 대분류 intensity를 넘지 못하도록 Cap 적용
-          newScore = Math.min(t1.intensity, Math.max(0.0, newScore));
-
-          t1.subnodes[activeDraggingKnob.subnodeIdx].score = Math.round(newScore * 10) / 10;
-          updateHeaderUI();
+        } else if (activeDraggingSubnodeIdx !== -1) {
+          applySubnodeScoreFromDist(activeDraggingSubnodeIdx, dist);
         }
       };
 
       const onUp = () => {
-        if (isDraggingParentRim) {
-          isDraggingParentRim = false;
+        if (isAreaDraggingParent) {
+          isAreaDraggingParent = false;
           const t1 = currentTier1List[selectedTier1Index];
           if (t1.intensity > 0) {
-            // 대분류 점수 지정 완료 -> 자동 줌인 실행!
             autoZoomInToSector();
           }
         }
@@ -1097,7 +1043,7 @@
           if (snapIdx < 0) snapIdx += count;
           snapToTier1(snapIdx);
         }
-        activeDraggingKnob = null;
+        activeDraggingSubnodeIdx = -1;
       };
 
       wrap.addEventListener('mousedown', onDown);
@@ -1109,6 +1055,24 @@
       window.addEventListener('touchend', onUp);
     }
 
+    function applyParentScoreFromDist(dist) {
+      const { maxR, minR } = getWheelGeometry();
+      let score = ((dist - minR) / (maxR - minR)) * 10;
+      score = Math.min(10.0, Math.max(0.0, score));
+      currentTier1List[selectedTier1Index].intensity = Math.round(score * 10) / 10;
+      updateHeaderUI();
+    }
+
+    function applySubnodeScoreFromDist(sIdx, dist) {
+      const { maxR, minR } = getWheelGeometry();
+      const t1 = currentTier1List[selectedTier1Index];
+      let score = ((dist - minR) / (maxR - minR)) * 10;
+      // 대분류 Cap 적용
+      score = Math.min(t1.intensity, Math.max(0.0, score));
+      t1.subnodes[sIdx].score = Math.round(score * 10) / 10;
+      updateHeaderUI();
+    }
+
     function snapToTier1(idx) {
       selectedTier1Index = idx;
       const count = currentTier1List.length;
@@ -1117,7 +1081,6 @@
       updateHeaderUI();
     }
 
-    // 자동 줌인 (Step 2 진입)
     function autoZoomInToSector() {
       currentFlowPhase = 'ZOOMED_SECTOR';
       targetZoomProgress = 1.0;
@@ -1125,7 +1088,6 @@
       showToast(`🔍 '${currentTier1List[selectedTier1Index].name}' 세부 소분류 평가로 줌인됨!`);
     }
 
-    // 줌아웃 (Step 1 복귀)
     function zoomOutToWheel() {
       currentFlowPhase = 'WHEEL_NAV';
       targetZoomProgress = 0.0;
@@ -1143,37 +1105,96 @@
       const btnZoomOut = document.getElementById('btnZoomOut');
       const arrowLeft = document.getElementById('arrowLeft');
       const arrowRight = document.getElementById('arrowRight');
+      const addTagBtn = document.getElementById('floatingAddTagBtn');
 
       if (currentFlowPhase === 'WHEEL_NAV') {
         phaseBadge.classList.remove('zoomed');
         phaseText.innerText = `1단계: 대분류 점수 [${t1.intensity.toFixed(1)}/10]`;
-        hintText.innerText = '👆 노란 점을 위로 밀어 대분류 점수를 정하면 자동 줌인됩니다';
+        hintText.innerText = '👆 영역을 누른 상태로 위아래로 움직여 점수를 정하세요';
         btnZoomOut.classList.remove('show');
         arrowLeft.style.display = 'flex';
         arrowRight.style.display = 'flex';
+        addTagBtn.classList.remove('show');
       } else {
         phaseBadge.classList.add('zoomed');
-        phaseText.innerText = `2단계: 소분류 분할 평가 (상한: ${t1.intensity.toFixed(1)}점)`;
-        hintText.innerText = '👆 각 소분류 쐐기 레일의 점을 밀어올려 강도를 매기세요';
+        phaseText.innerText = `2단계: 소분류 평가 (상한: ${t1.intensity.toFixed(1)}점)`;
+        hintText.innerText = '👆 쐐기 영역을 누른 상태로 위아래로 움직여 강도를 매기세요';
         btnZoomOut.classList.add('show');
         arrowLeft.style.display = 'none';
         arrowRight.style.display = 'none';
+
+        // 소분류가 비었으면 중앙 추가 버튼 노출
+        if (t1.subnodes.length === 0) {
+          addTagBtn.classList.add('show');
+        } else {
+          addTagBtn.classList.remove('show');
+        }
       }
     }
 
     // ==========================================
-    // 4. 360도 완성형 통합 플레이버 휠 레이더 차트 렌더링
+    // 4. 소분류 추천 태그 바텀시트
+    // ==========================================
+    function openTagBottomSheet() {
+      const t1 = currentTier1List[selectedTier1Index];
+      document.getElementById('sheetParentTitle').innerHTML = `${t1.icon} ${t1.name} 추천 향미 태그`;
+      const container = document.getElementById('tagChipsContainer');
+      container.innerHTML = '';
+
+      const presets = DEFAULT_PRESET_TAGS[t1.id] || ['과일향', '달콤함', '스모키', '우디'];
+      presets.forEach(tagName => {
+        // 이미 추가된 태그인지 확인
+        const exists = t1.subnodes.some(s => s.name === tagName);
+        if (!exists) {
+          const chip = document.createElement('div');
+          chip.className = 'tag-chip';
+          chip.innerText = `+ ${tagName}`;
+          chip.onclick = () => selectTagFromSheet(tagName);
+          container.appendChild(chip);
+        }
+      });
+
+      document.getElementById('tagBottomSheet').classList.add('show');
+    }
+
+    function closeTagBottomSheet() {
+      document.getElementById('tagBottomSheet').classList.remove('show');
+    }
+
+    function selectTagFromSheet(tagName) {
+      const t1 = currentTier1List[selectedTier1Index];
+      t1.subnodes.push({
+        id: `sub_${Date.now()}`,
+        name: tagName,
+        score: t1.intensity * 0.75, // 기본 75% 높이로 생성
+        isCustom: false
+      });
+      closeTagBottomSheet();
+      updateHeaderUI();
+      showToast(`✨ '${tagName}' 쐐기 레일 생성 완료! (영역을 위아래로 드래그하세요)`);
+    }
+
+    function addCustomSubnodeFromInput() {
+      const input = document.getElementById('customTagInput');
+      const name = input.value.trim();
+      if (!name) return;
+      selectTagFromSheet(name);
+      input.value = '';
+    }
+
+    // ==========================================
+    // 5. 360도 완성형 옥타곤 배경 & 롱프레스 팝아웃 레이더 차트
     // ==========================================
     function openFinalResultModal() {
       document.getElementById('resultModal').classList.add('show');
-      draw360IntegratedRadarChart();
+      draw360OctagonRadarChart();
     }
 
     function closeFinalResultModal() {
       document.getElementById('resultModal').classList.remove('show');
     }
 
-    function draw360IntegratedRadarChart() {
+    function draw360OctagonRadarChart() {
       const finalCanvas = document.getElementById('finalRadarCanvas');
       const fCtx = finalCanvas.getContext('2d');
       const w = finalCanvas.width;
@@ -1195,7 +1216,7 @@
         fCtx.stroke();
       }
 
-      // 2. 대분류 축 라인 & 대분류 외곽 폴리곤
+      // 2. [핵심] 뒷배경: 8대 대분류 점수 꼭짓점을 연결한 옥타곤 다각형 레이더 차트
       fCtx.beginPath();
       for (let i = 0; i < count; i++) {
         const angle = -Math.PI / 2 + (i * sectorSpan);
@@ -1222,22 +1243,36 @@
         fCtx.fillText(currentTier1List[i].icon, lx, ly);
       }
       fCtx.closePath();
-      fCtx.strokeStyle = 'rgba(245, 158, 11, 0.6)';
-      fCtx.lineWidth = 2;
-      fCtx.stroke();
 
-      // 3. [핵심] 대분류 영역 안에 소분류들이 색상/쐐기로 나누어 채워진 360도 멀티링 렌더링!
+      // 옥타곤 다각형 배경 채우기
+      fCtx.fillStyle = 'rgba(245, 158, 11, 0.15)';
+      fCtx.fill();
+      fCtx.strokeStyle = '#F59E0B';
+      fCtx.lineWidth = 2.5;
+      fCtx.shadowColor = 'rgba(245, 158, 11, 0.8)';
+      fCtx.shadowBlur = 10;
+      fCtx.stroke();
+      fCtx.shadowBlur = 0;
+
+      // 3. 전면: 대분류 영역 안에 소분류들이 색상/쐐기로 나누어 채워진 360도 렌더링
       currentTier1List.forEach((t1, i) => {
         if (t1.intensity === 0) return;
         const startAngle = -Math.PI / 2 + (i * sectorSpan) - sectorSpan / 2;
         const subCount = t1.subnodes.length;
+        if (subCount === 0) return;
         const wedgeSpan = sectorSpan / subCount;
 
         t1.subnodes.forEach((sub, sIdx) => {
           if (sub.score === 0) return;
           const wStart = startAngle + (sIdx * wedgeSpan);
           const wEnd = wStart + wedgeSpan;
-          const fillR = (maxR / 10) * sub.score;
+
+          // 롱프레스 팝아웃 확대 여부
+          const isPopped = activeLongpressSubnode &&
+                           activeLongpressSubnode.tier1Idx === i &&
+                           activeLongpressSubnode.subnodeIdx === sIdx;
+
+          const fillR = (maxR / 10) * sub.score * (isPopped ? 1.15 : 1.0);
 
           fCtx.beginPath();
           fCtx.moveTo(cx, cy);
@@ -1245,15 +1280,73 @@
           fCtx.closePath();
 
           fCtx.fillStyle = t1.color || '#F59E0B';
-          fCtx.globalAlpha = 0.65;
+          fCtx.globalAlpha = isPopped ? 1.0 : 0.75;
           fCtx.fill();
           fCtx.globalAlpha = 1.0;
 
-          fCtx.strokeStyle = '#FFF';
-          fCtx.lineWidth = 1;
+          fCtx.strokeStyle = isPopped ? '#FFF' : 'rgba(255, 255, 255, 0.6)';
+          fCtx.lineWidth = isPopped ? 3 : 1;
+          if (isPopped) {
+            fCtx.shadowColor = '#FFF';
+            fCtx.shadowBlur = 15;
+          }
           fCtx.stroke();
+          fCtx.shadowBlur = 0;
         });
       });
+    }
+
+    // 완성 차트 롱프레스 제스처 바인딩
+    function setupFinalChartLongpress() {
+      const finalCanvas = document.getElementById('finalRadarCanvas');
+
+      const handlePress = (clientX, clientY) => {
+        const rect = finalCanvas.getBoundingClientRect();
+        const x = (clientX - rect.left) * (finalCanvas.width / rect.width);
+        const y = (clientY - rect.top) * (finalCanvas.height / rect.height);
+        const cx = finalCanvas.width / 2;
+        const cy = finalCanvas.height / 2;
+
+        let angle = Math.atan2(y - cy, x - cx);
+        const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
+        const count = currentTier1List.length;
+        const sectorSpan = (Math.PI * 2) / count;
+
+        let normAngle = angle + Math.PI / 2 + sectorSpan / 2;
+        if (normAngle < 0) normAngle += Math.PI * 2;
+        normAngle = normAngle % (Math.PI * 2);
+
+        const t1Idx = Math.floor(normAngle / sectorSpan) % count;
+        const t1 = currentTier1List[t1Idx];
+
+        if (t1.intensity > 0 && t1.subnodes.length > 0) {
+          const subCount = t1.subnodes.length;
+          const wedgeSpan = sectorSpan / subCount;
+          const subIdx = Math.floor((normAngle % sectorSpan) / wedgeSpan) % subCount;
+
+          activeLongpressSubnode = { tier1Idx: t1Idx, subnodeIdx: subIdx };
+          draw360OctagonRadarChart();
+
+          const sub = t1.subnodes[subIdx];
+          document.getElementById('lpTitle').innerHTML = `🔍 <b>${t1.icon} ${t1.name}</b> (대분류: ${t1.intensity}점) ▶ <b>${sub.name}</b>`;
+          document.getElementById('lpScore').innerText = `${sub.score.toFixed(1)} 점`;
+        }
+      };
+
+      const cancelPress = () => {
+        activeLongpressSubnode = null;
+        draw360OctagonRadarChart();
+        document.getElementById('lpTitle').innerText = '💡 소분류 쐐기를 길게 누르면(Long-press) 팝아웃 확대됩니다';
+        document.getElementById('lpScore').innerText = '';
+      };
+
+      finalCanvas.addEventListener('mousedown', (e) => handlePress(e.clientX, e.clientY));
+      window.addEventListener('mouseup', cancelPress);
+
+      finalCanvas.addEventListener('touchstart', (e) => {
+        handlePress(e.touches[0].clientX, e.touches[0].clientY);
+      }, { passive: true });
+      window.addEventListener('touchend', cancelPress);
     }
 
     function confirmSaveNote() {
@@ -1261,35 +1354,7 @@
       showToast('💾 360° 테이스팅 카드 Isar DB 영속화 완료! (0ms)');
     }
 
-    // 모달 관리
-    function openAddSubnodeModal() {
-      const t1 = currentTier1List[selectedTier1Index];
-      document.getElementById('modalTargetTier1').innerText = `${t1.icon} ${t1.name}`;
-      document.getElementById('newSubnodeName').value = '';
-      document.getElementById('addSubnodeModal').classList.add('show');
-    }
-    function closeAddSubnodeModal() {
-      document.getElementById('addSubnodeModal').classList.remove('show');
-    }
-    function confirmAddSubnode() {
-      const name = document.getElementById('newSubnodeName').value.trim();
-      if (!name) { alert('소분류 이름을 입력해 주세요!'); return; }
-      const t1 = currentTier1List[selectedTier1Index];
-
-      t1.subnodes.push({
-        id: `sub_custom_${Date.now()}`,
-        name: name,
-        score: Math.min(t1.intensity, 5.0),
-        isCustom: true
-      });
-
-      closeAddSubnodeModal();
-      showToast(`✨ 섹터 내에 '${name}' 레일 추가 완료!`);
-    }
-
     function openAddTier1Modal() {
-      document.getElementById('newTier1Name').value = '';
-      document.getElementById('newTier1Icon').value = '🍄';
       document.getElementById('addTier1Modal').classList.add('show');
     }
     function closeAddTier1Modal() {
@@ -1307,15 +1372,13 @@
         icon: icon,
         color: '#A855F7',
         intensity: 0.0,
-        subnodes: [
-          { id: `sub_${Date.now()}_1`, name: `${name.split('/')[0]} 1`, score: 0.0, isCustom: true }
-        ]
+        subnodes: []
       };
 
       currentTier1List.push(newT1);
       closeAddTier1Modal();
       snapToTier1(currentTier1List.length - 1);
-      showToast(`✨ 새 대분류 '${name}' 추가 완료! (점수를 정해보세요)`);
+      showToast(`✨ 새 대분류 '${name}' 추가 완료!`);
     }
 
     function switchDomain(domain, pill) {

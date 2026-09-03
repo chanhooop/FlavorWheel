@@ -832,7 +832,6 @@
           if (t1.intensity > 0) {
             const subCount = t1.subnodes.length;
 
-            // [신규 핵심] 소분류가 이미 기입된 상태라면, 대분류 점수 영역 내부에 해당 소분류 쐐기들을 분할 렌더링!
             if (subCount > 0) {
               const wedgeSpan = sectorSpan / subCount;
 
@@ -849,7 +848,8 @@
                 const wStart = startAngle + (sIdx * wedgeSpan);
                 const wEnd = wStart + wedgeSpan;
                 const wMid = (wStart + wEnd) / 2;
-                const fillR = minR + ((maxR - minR) / 10) * sub.score;
+                // [핵심] 소분류 선택 영역의 상한은 대분류 영역(intensityR)까지이며 점수는 10점 만점 매핑!
+                const fillR = minR + (intensityR - minR) * (sub.score / 10);
 
                 // 소분류 쐐기 영역 채우기
                 ctx.beginPath();
@@ -921,7 +921,8 @@
               const wStart = startAngle + (sIdx * wedgeSpan);
               const wEnd = wStart + wedgeSpan;
               const wMid = (wStart + wEnd) / 2;
-              const fillR = minR + ((maxR - minR) / 10) * sub.score;
+              // [핵심] 소분류 선택 영역의 상한은 대분류 영역(intensityR)까지! 점수는 10점 만점 비례!
+              const fillR = minR + (intensityR - minR) * (sub.score / 10);
 
               if (sub.score > 0) {
                 ctx.beginPath();
@@ -929,18 +930,18 @@
                 ctx.arc(cx, cy, fillR, wStart + 0.015, wEnd - 0.015);
                 ctx.closePath();
 
-                const grad = ctx.createRadialGradient(cx, cy, minR, cx, cy, maxR);
-                grad.addColorStop(0, 'rgba(245, 158, 11, 0.7)');
-                grad.addColorStop(1, 'rgba(220, 38, 38, 0.45)');
+                const grad = ctx.createRadialGradient(cx, cy, minR, cx, cy, intensityR);
+                grad.addColorStop(0, 'rgba(245, 158, 11, 0.75)');
+                grad.addColorStop(1, 'rgba(220, 38, 38, 0.5)');
                 ctx.fillStyle = grad;
                 ctx.fill();
               }
 
-              // 10점 만점 레일 외곽 가이드선
+              // 대분류 상한선 가이드 아크
               ctx.beginPath();
-              ctx.arc(cx, cy, maxR, wStart + 0.015, wEnd - 0.015);
-              ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-              ctx.lineWidth = 1.5;
+              ctx.arc(cx, cy, intensityR, wStart + 0.015, wEnd - 0.015);
+              ctx.strokeStyle = 'rgba(245, 158, 11, 0.6)';
+              ctx.lineWidth = 2;
               ctx.stroke();
 
               // 소분류 채워진 게이지 외곽 아크
@@ -952,16 +953,16 @@
                 ctx.stroke();
               }
 
-              // 레일 중심선 (0 ~ 10점)
+              // 레일 중심선 (minR ~ intensityR)
               ctx.beginPath();
               ctx.moveTo(cx + minR * Math.cos(wMid), cy + minR * Math.sin(wMid));
-              ctx.lineTo(cx + maxR * Math.cos(wMid), cy + maxR * Math.sin(wMid));
+              ctx.lineTo(cx + intensityR * Math.cos(wMid), cy + intensityR * Math.sin(wMid));
               ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
               ctx.lineWidth = 1;
               ctx.stroke();
 
-              // 소분류 라벨 & 점수 (10점 만점 기준 동적 배치)
-              const labelDist = fillR > maxR * 0.62 ? fillR - 36 : fillR + 36;
+              // 소분류 라벨 & 점수 (상한선 intensityR 안에서 동적 배치)
+              const labelDist = minR + (intensityR - minR) * 0.55;
               const lx = cx + labelDist * Math.cos(wMid);
               const ly = cy + labelDist * Math.sin(wMid);
 
@@ -978,7 +979,7 @@
             // [+] 새 태그 추가 레일
             const addWStart = startAngle + (subCount * wedgeSpan);
             const addWMid = addWStart + wedgeSpan / 2;
-            const addR = minR + ((maxR - minR) / 10) * 4.0;
+            const addR = minR + (intensityR - minR) * 0.5;
             const ax = cx + addR * Math.cos(addWMid);
             const ay = cy + addR * Math.sin(addWMid);
 
@@ -1219,8 +1220,12 @@
     function applySubnodeScoreFromDist(sIdx, dist) {
       const { maxR, minR } = getWheelGeometry();
       const t1 = currentTier1List[selectedTier1Index];
-      let score = ((dist - minR) / (maxR - minR)) * 10;
-      // [핵심] 대분류 점수에 종속되지 않고 소분류는 0.0 ~ 10.0점 만점 독자 점수로 기입!
+      const intensityR = minR + ((maxR - minR) / 10) * t1.intensity;
+      const availableSpan = intensityR - minR;
+      if (availableSpan <= 0) return;
+
+      // [핵심] 소분류 선택 영역의 상한은 대분류 영역(intensityR)까지이며, 상한 도달 시 10점 만점!
+      let score = ((dist - minR) / availableSpan) * 10;
       score = Math.min(10.0, Math.max(0.0, score));
       t1.subnodes[sIdx].score = Math.round(score * 10) / 10;
       updateHeaderUI();
@@ -1277,8 +1282,8 @@
         }
       } else {
         phaseBadge.classList.add('zoomed');
-        phaseText.innerText = `2단계: 소분류 평가 (0.0 ~ 10.0점)`;
-        hintText.innerText = '🔄 하단 중앙 미니 반원을 좌우로 돌려 대분류를 쉽게 전환하세요';
+        phaseText.innerText = `2단계: 소분류 평가 [0.0 ~ 10.0점]`;
+        hintText.innerText = '👆 대분류 영역 안에서 위아래로 드래그하여 소분류 점수(10점 만점)를 조절하세요';
         btnZoomOut.classList.add('show');
         tapBadge.classList.remove('show');
 
@@ -1323,7 +1328,7 @@
       t1.subnodes.push({
         id: `sub_${Date.now()}`,
         name: tagName,
-        score: 7.0, // 기본 7.0점(10점 만점 기준)
+        score: 7.0, // 기본 7.0점 (10점 만점 기준)
         isCustom: false
       });
       closeTagBottomSheet();
@@ -1403,13 +1408,14 @@
       fCtx.lineWidth = 2.5;
       fCtx.stroke();
 
-      // 전면: 소분류 쐐기들
+      // 전면: 소분류 쐐기들 (대분류 점수 영역 안에서 10점 만점 비례 렌더링)
       currentTier1List.forEach((t1, i) => {
         if (t1.intensity === 0) return;
         const startAngle = -Math.PI / 2 + (i * sectorSpan) - sectorSpan / 2;
         const subCount = t1.subnodes.length;
         if (subCount === 0) return;
         const wedgeSpan = sectorSpan / subCount;
+        const maxR_t1 = (maxR / 10) * t1.intensity;
 
         t1.subnodes.forEach((sub, sIdx) => {
           if (sub.score === 0) return;
@@ -1420,7 +1426,8 @@
                            activeLongpressSubnode.tier1Idx === i &&
                            activeLongpressSubnode.subnodeIdx === sIdx;
 
-          const fillR = (maxR / 10) * sub.score * (isPopped ? 1.15 : 1.0);
+          // [핵심] 대분류 영역(maxR_t1) 한도 내에서 sub.score (0~10)만큼 채움
+          const fillR = (maxR_t1 / 10) * sub.score * (isPopped ? 1.15 : 1.0);
 
           fCtx.beginPath();
           fCtx.moveTo(cx, cy);

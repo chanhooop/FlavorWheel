@@ -1116,8 +1116,12 @@
           }
         }
 
-        if (isSpinningWheel) {
+        if (isSpinningWheel || gestureIntent === 'HORIZONTAL_SPIN') {
           isSpinningWheel = false;
+          // [핵심] 미니 반원 회전 다이얼이 돌아간 이후에는 확실하게 1단계 대분류 점수 화면으로 전환!
+          currentFlowPhase = 'WHEEL_NAV';
+          targetZoomProgress = 0.0;
+
           const count = currentTier1List.length;
           const sectorSpan = (Math.PI * 2) / count;
           let snapIdx = Math.round(-wheelAngle / sectorSpan) % count;

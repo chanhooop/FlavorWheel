@@ -1,179 +1,148 @@
-# 🥃 Flavor Wheel (플레이버 휠) - 제품 기획 및 기술 설계서 (PRD & System Spec)
+# 🥃 FlavorWheel (플레이버 휠) - 제품 및 시스템 아키텍처 (Master Specification)
 
-> **"향과 맛 애호가들을 위한 Offline-First 스마트 테이스팅 노트 & 2단계 줌인 플레이버 휠 플랫폼"**  
-> *"면적 터치 위아래 드래그 조작, 점수 영역 탭 시 소분류 확대 진입, 4점 이하 적응형 확대 시 배경 눈금 동적 재스케일링, 하단 미니 다이얼 림, 그리고 완성된 차트에서 콤팩트한 0점 미니 베이스 링($R_0 = R_{\max} \times 0.08$) 기반 8대 대분류 레이더 ➔ 탭 시 소분류 파이 전환 ➔ 개별 파이 탭 시 대폭 확대(Mega Pop-out) 인터랙션을 제공합니다."*
+> **"향과 맛 애호가들을 위한 Offline-First 스마트 테이스팅 노트 플랫폼 & 고부가가치 플레이버 데이터 에셋"**
 
 ---
 
 ## 📌 목차 (Table of Contents)
-1. [프로젝트 비전 및 핵심 설계 철학](#1-프로젝트-비전-및-핵심-설계-철학)
-2. [핵심 아키텍처 규칙 5대 원칙](#2-핵심-아키텍처-규칙-5대-원칙)
-   - 2.1 [Offline-First 영속성 및 동기화 규칙](#21-offline-first-영속성-및-동기화-규칙)
-   - 2.2 [면적 드래그 조작 & 점수 영역 탭 줌인 모델](#22-면적-드래그-조작--점수-영역-탭-줌인-모델)
-   - 2.3 [대분류 4점 이하 적응형 확대 & 배경 눈금 동적 재스케일링](#23-대분류-4점-이하-적응형-확대--배경-눈금-동적-재스케일링)
-   - 2.4 [대분류 점수 뷰 내 기입된 소분류 쐐기 영역 실시간 미리보기](#24-대분류-점수-뷰-내-기입된-소분류-쐐기-영역-실시간-미리보기)
-   - 2.5 [소분류 줌인 상태 하단 중앙 미니 반원 다이얼 림](#25-소분류-줌인-상태-하단-중앙-미니-반원-다이얼-림)
-   - 2.6 [완성형 차트: 콤팩트 0점 미니 베이스 링($R_0$) & 8대 대분류 레이더 ➔ 소분류 파이 계층 뷰](#26-완성형-차트-콤팩트-0점-미니-베이스-링r_0--8대-대분류-레이더--소분류-파이-계층-뷰)
-3. [시스템 아키텍처 다이어그램](#3-시스템-아키텍처-다이어그램)
-4. [상세 기능 요구사항 명세 (FRD)](#4-상세-기능-요구사항-명세-frd)
-5. [데이터베이스 스키마 및 JSON 스펙](#5-데이터베이스-스키마-및-json-스펙)
-6. [단계별 로드맵 & 마일스톤](#6-단계별-로드맵--마일스톤)
-7. [인터랙티브 프로토타입 안내](#7-인터랙티브-프로토타입-안내)
+1. [프로젝트 비전 및 핵심 가치](#1-프로젝트-비전-및-핵심-가치)
+2. [4대 핵심 영역 아키텍처 요약](#2-4대-핵심-영역-아키텍처-요약)
+   - 🎨 [Frontend (클라이언트 & UI/UX 엔진)](#-frontend-클라이언트--uiux-엔진)
+   - ⚙️ [Backend (백엔드 & 데이터 파이프라인)](#️-backend-백엔드--데이터-파이프라인)
+   - 🏢 [Business Strategy (사업 전략 & 수익화 모델)](#-business-strategy-사업-전략--수익화-모델)
+   - 📐 [Domain Logic (도메인 모델 & 캘리브레이션 알고리즘)](#-domain-logic-도메인-모델--캘리브레이션-알고리즘)
+3. [통합 시스템 아키텍처 다이어그램](#3-통합-시스템-아키텍처-다이어그램)
+4. [단계별 로드맵 & 마일스톤](#4-단계별-로드맵--마일스톤)
+5. [상세 기술 문서 (Detailed Documentation)](#5-상세-기술-문서-detailed-documentation)
+6. [인터랙티브 프로토타입 실행 안내](#6-인터랙티브-프로토타입-실행-안내)
 
 ---
 
-## 1. 프로젝트 비전 및 핵심 설계 철학
+## 1. 프로젝트 비전 및 핵심 가치
 
-위스키를 비롯한 주류 및 미식(와인, 커피, 맥주 등) 애호가들이 장소와 네트워크 환경에 구애받지 않고 시음 경험을 정밀하게 기록하고 탐색할 수 있는 플랫폼을 구축합니다.
+FlavorWheel은 사용자가 위스키를 비롯한 주류 및 미식(와인, 커피, 맥주 등)의 시음 경험을 오프라인 환경에서도 직관적이고 정밀하게 기록하고 탐색할 수 있는 **Offline-First 스마트 테이스팅 플랫폼**입니다.
 
-* **No Blank Screen (항상 즉시 동작)**: 지하 바(Bar)나 위스키 축제 등 오프라인 환경에서도 100% 정상 작동하는 **Offline-First**.
-* **Compact Zero Base Ring (콤팩트 0점 미니 베이스 링)**: 레이더 차트의 중심부에 콤팩트한 $0$점 미니 베이스 링($R_0 = R_{\max} \times 0.08$)을 두어, $0$점인 대분류도 $R_0$ 둘레를 따라 자연스러운 8각형 레이더 다각형으로 닫히며 점수가 높을수록 중심에서 바깥쪽으로 시원하게 확장.
-* **Progressive View Separation (대분류 따로 / 소분류 따로 계층형 뷰)**:
-  1. **대분류 레이더 뷰**: 진입 시 0점 미니 베이스 링 기반 8대 대분류 레이더 다각형만 우선 노출하여 전체 밸런스를 명료하게 조망.
-  2. **소분류 파이 뷰**: 레이더 차트를 탭하면 소분류들이 $R_0$부터 바깥쪽으로 채워지는 파이 차트로 전환되어 세부 향미들을 확인.
-  3. **개별 파이 팝아웃 확대**: 특정 파이를 탭하면 해당 파이가 1.45배 확 커져서(Mega Pop-out) 눈에 잘 보이게 하이라이트.
-  4. **레이더 복귀**: 파이 바깥쪽 또는 $R_0$ 안쪽을 누르면 다시 대분류 레이더 차트만 표시.
+* **No Blank Screen (항상 즉시 동작)**: 지하 바(Bar)나 시음 행사 등 열악한 네트워크 환경에서도 100% 동작하는 오프라인 퍼스트 아키텍처.
+* **Sensory Structuring (감각의 계층적 구조화)**: 주관적인 맛과 향을 8대 대분류 및 30+개 소분류 트리로 객관화하고 0.0~100.0점 정밀 척도로 기록.
+* **Calibrated Data Assetization (과학적 보정 기반 데이터 자산화)**: 앵커 기준점 가이드, A/B 짝비교, Z-Score 정규화로 일반인 데이터 노이즈를 보정하여 고신뢰도 F&B 데이터 에셋 구축.
 
 ---
 
-## 2. 핵심 아키텍처 규칙 5대 원칙
+## 2. 4대 핵심 영역 아키텍처 요약
 
-### 2.1 Offline-First 영속성 및 동기화 규칙
-
-1. **Local DB = Single Source of Truth**: 모든 읽기/쓰기 작업은 로컬 데이터베이스(`Isar` 또는 `Drift`)를 최우선으로 통과합니다.
-2. **낙관적 업데이트 (Optimistic Updates)**: 서버 응답을 기다리지 않고 로컬에 즉시 커밋 후 UI에 0ms로 반영합니다.
-3. **ETag & 버전 해시 기반 델타 캐싱**: 향미 마스터 트리는 앱 최초 실행 시 로컬에 저장되며, 서버 호출 시 ETag 헤더를 비교하여 변경사항이 있을 때만 증분 다운로드(`304 Not Modified` 처리)합니다.
-
----
-
-### 2.2 면적 드래그 조작 & 점수 영역 탭 줌인 모델
-
-* **면적 드래그**: 섹터/레일 영역 어디든 터치하고 Y축으로 드래그하면 손가락 높이에 맞춰 점수가 조절됩니다.
-* **점수 영역 탭 줌인**: 소분류가 아직 없는 경우 `[🔍 탭하여 소분류 평가하기]` 버튼으로 진입하고, 소분류가 이미 채워진 대분류는 **점수 영역(소분류 쐐기들)을 직접 탭하여 소분류 세부 조작 화면으로 즉시 확대(Zoom-in)**됩니다.
+### 🎨 Frontend (클라이언트 & UI/UX 엔진)
+* **콤팩트 0점 베이스 링 ($R_0 = R_{\max} \times 0.08$)**: 0점인 항목도 $R_0$ 둘레에 꼭짓점을 형성하여 형태적 밸런스를 갖춘 8각형 레이더 차트 렌더링.
+* **3단계 계층 뷰 전환**: 8대 레이더 ➔ 소분류 파이 ➔ 1.45배 Mega Pop-out 하이라이트.
+* **인터랙티브 제스처**: Y축 면적 드래그 점수 매핑, 하단 중앙 미니 반원 다이얼 림 회전 네비게이션.
+* 🔗 **상세 문서**: [docs/Implementation Plan/frontend.md](file:///Users/chanholee/Desktop/project/FlavorWheelProject/docs/Implementation%20Plan/frontend.md)
 
 ---
 
-### 2.3 대분류 4점 이하 적응형 확대 & 배경 눈금 동적 재스케일링
-
-* **동적 스케일 확장 (Adaptive Zoom)**:
-  * 하단 중앙 미니 다이얼($R_{\text{dial}}$) 크기는 그대로 유지.
-  * 상단 그래프 영역만 대분류 점수가 4.0점 이하일 때 6.0점대 높이 수준으로 적응형 확대.
-* **배경 눈금 라벨 동적 전환**: 확대 렌즈 모드 진입 시 뒷배경의 $2, 4, 6, 8, 10$ 기본 눈금이 대분류 점수 기준 정밀 눈금($1.0\text{점}, 2.0\text{점}, 3.0\text{점 (상한)}$)으로 전환.
-
----
-
-### 2.4 대분류 점수 뷰 내 기입된 소분류 쐐기 영역 실시간 미리보기
-
-* 1단계 휠 전체 뷰에서도 해당 대분류에 소분류들이 기입되어 있다면, **대분류 점수 영역 내부에 각 소분류 쐐기들이 10점 만점 비례 점수 높이만큼 분할 채워진 모습**이 실시간으로 렌더링됩니다.
+### ⚙️ Backend (백엔드 & 데이터 파이프라인)
+* **프레임워크 독립 표준 아키텍처**: REST / gRPC 및 Event-Driven 마이크로서비스 설계.
+* **ETag Delta Sync Engine**: 향미 마스터 트리 ETag 기반 `304 Not Modified` 캐싱 및 오프라인 델타 동기화.
+* **데이터 정제 & 파이프라인**: 비식별화, 이상치 필터링, 플레이버 벡터 임베딩 생성.
+* 🔗 **상세 문서**: [docs/Implementation Plan/backend.md](file:///Users/chanholee/Desktop/project/FlavorWheelProject/docs/Implementation%20Plan/backend.md)
 
 ---
 
-### 2.5 소분류 줌인 상태 하단 중앙 미니 반원 다이얼 림
-
-* 소분류 줌인 상태 시 화면 하단 중심에 작은 반원 다이얼이 렌더링되며, 이를 좌우로 돌린 후 손을 떼면 1단계 대분류 점수 화면으로 부드럽게 복귀 전환됩니다.
-
----
-
-### 2.6 완성형 차트: 콤팩트 0점 미니 베이스 링($R_0$) & 8대 대분류 레이더 ➔ 소분류 파이 계층 뷰
-
-* **0점 미니 베이스 링 및 동심원 눈금 수식**:
-  $$R_0 = R_{\max} \times 0.08, \quad R(\text{score}) = R_0 + \frac{R_{\max} - R_0}{10} \times \text{score}$$
-  * 동심원 눈금: `0점 (미니 링)`, `2점`, `4점`, `6점`, `8점`, `10점`
-  * 8대 대분류 축선 전체 표시 (0점 항목도 $R_0$ 위치에 꼭짓점 형성).
-* **3단계 계층 인터랙션**:
-  ```
-  [ Step 1: 기본 진입 (8대 대분류 레이더 뷰) ]
-    • 0점 미니 베이스 링 기반 8각형 레이더 다각형만 깔끔하게 표시!
-    • 상단: "👆 대분류 레이더 차트를 탭하면 소분류 파이 차트로 전환됩니다"
-          │
-          ▼ (레이더 차트 내부 탭)
-  [ Step 2: 소분류 파이 차트 전환 (소분류 뷰) ]
-    • R_0부터 바깥쪽으로 채워지는 각 대분류 섹터별 소분류 파이 조각(Pie Wedges) 렌더링
-    • 상단: "🔍 개별 파이 조각을 탭하여 확대하세요 (바깥쪽 터치 시 대분류 레이더 복귀)"
-          │
-          ▼ (개별 파이 조각 탭)
-  [ Step 3: 개별 파이 대폭 확대 (Mega Pop-out) ]
-    • 탭한 파이 조각이 1.45배 확 커지며 네온 글로우로 부각! (비선택 파이는 반투명 포커스)
-    • 상단: "🌟 Sweet ▶ 바닐라 (8.5 / 10점)"
-          │
-          ▼ (파이 바깥쪽 / 여백 터치)
-  [ Step 1 대분류 레이더 뷰로 즉시 복귀! ]
-  ```
+### 🏢 Business Strategy (사업 전략 & 수익화 모델)
+* **카테고리 확장**: 위스키 MVP ➔ 스페셜티 커피, 와인, 맥주, 디저트/치즈 페어링 확장.
+* **현실적 수익 모델**: B2B 매장용 태블릿 큐레이션 SaaS, 스마트오더/바 제휴 수수료, F&B R&D 데이터 공급.
+* **온보딩 정책 & 법률 준수**: 100% 무가입 로컬 허용, 선택적 전문가 Verified 뱃지, 주류 통신판매 규제 합법 준수.
+* 🔗 **상세 문서**: [docs/business_strategy.md](file:///Users/chanholee/Desktop/project/FlavorWheelProject/docs/business_strategy.md)
 
 ---
 
-## 3. 시스템 아키텍처 다이어그램
+### 📐 Domain Logic (도메인 모델 & 캘리브레이션 알고리즘)
+* **재귀적 N-Depth 감각 트리**: 단일 루트(Depth 0: 아이템명 + 종합 평점)부터 말단(Leaf) 노드까지 무한 확장되는 단일 트리 모델.
+* **전 노드 독립 스코어링**: 자식이 있으면 상위 분류(Parent), 없으면 말단(Leaf)으로 동작하며 모든 깊이의 노드가 $0.0 \sim 100.0$점 독립 점수 보유.
+* **감각 캘리브레이션 & 추천**: 앵커 기준점 매핑, Bradley-Terry 짝비교 확률 모델, Z-Score 개인 편향 정규화, 테이스터 신뢰도 가중치($w_u$).
+* **상태 전이 머신 & 다국어 온톨로지**: 노트 생명주기(Draft ➔ Finalized ➔ Synced ➔ Cleansed) 및 문화권별 감각 동의어 사전.
+* 🔗 **상세 문서**: [docs/domain_logic.md](file:///Users/chanholee/Desktop/project/FlavorWheelProject/docs/domain_logic.md)
+
+---
+
+## 3. 통합 시스템 아키텍처 다이어그램
 
 ```mermaid
 graph TB
-    subgraph Client ["Flutter Client (Offline-First Interactive Architecture)"]
-        BaseRingRadarEngine["콤팩트 0점 미니 베이스 링 8대 레이더 ➔ 소분류 파이 계층 뷰 엔진"]
-        DynamicGridEngine["배경 눈금 동적 재스케일링 & 확대 렌즈 엔진"]
-        InWheelPreviewEngine["대분류 뷰 내 소분류 쐐기 실시간 미리보기"]
-        MiniDialEngine["하단 미니 반원 다이얼 림 제스처 엔진"]
-        TapZoomEngine["점수 영역 탭 줌인 & 줌아웃 엔진"]
+    subgraph ClientApp ["Flutter Client (Offline-First)"]
+        BaseRingEngine["0점 베이스 링 레이더 & Mega Pop-out 파이 뷰"]
+        GestureEngine["면적 드래그 & 미니 반원 다이얼 림"]
+        LocalDB["Local Repository (Isar / Drift DB)"]
+        SyncClient["Offline Sync Engine"]
 
-        State["State Layer (Riverpod / ViewModel)"]
-        SyncEngine["Sync Engine (Background Sync & Queue)"]
-        LocalRepository["Local Repository (Isar / Drift DB)"]
-
-        BaseRingRadarEngine <--> State
-        DynamicGridEngine <--> State
-        InWheelPreviewEngine <--> State
-        MiniDialEngine <--> State
-        TapZoomEngine <--> State
-        State <--> LocalRepository
-        LocalRepository <--> SyncEngine
+        BaseRingEngine <--> LocalDB
+        GestureEngine <--> LocalDB
+        LocalDB <--> SyncClient
     end
 
-    subgraph RemoteBackend ["Cloud Backend Services"]
-        Gateway["API Gateway / Auth"]
-        TreeService["Dynamic Flavor Tree Service (ETag Caching)"]
-        CurationService["Crowdsourced Flavor Curation Engine"]
-        NoteService["Tasting Note Sync API"]
+    subgraph BackendCloud ["Cloud Distributed Backend"]
+        Gateway["API Gateway & Rate Limiter"]
+        AuthModule["Verified Identity Service (CI/DI Hash)"]
+        SyncAPI["Tasting Note Sync API"]
+        TreeAPI["Flavor Tree Service (ETag 304)"]
+        CurationAPI["Crowdsource Curation Engine"]
+
+        EventBroker["Message Broker (Event Pipeline)"]
+        CleanseWorker["Anonymization & Cleansing"]
+        VectorWorker["Flavor Vector & AI Engine"]
+        PrimaryDB[(PostgreSQL)]
+        VectorDB[(pgvector DB)]
     end
 
-    SyncEngine <--> Gateway
-    Gateway --> TreeService
-    Gateway --> CurationService
-    Gateway --> NoteService
+    subgraph BusinessValue ["Data Asset & Monetization"]
+        B2BReports["주류/F&B B2B 트렌드 리포트"]
+        RecommendEngine["개인화 위스키 추천 & 취향 분석"]
+    end
+
+    SyncClient <-->|HTTPS / ETag Sync| Gateway
+    Gateway --> AuthModule
+    Gateway --> SyncAPI
+    Gateway --> TreeAPI
+    Gateway --> CurationAPI
+
+    SyncAPI <--> PrimaryDB
+    TreeAPI <--> PrimaryDB
+    SyncAPI -.->|Async Note Events| EventBroker
+
+    EventBroker --> CleanseWorker
+    EventBroker --> VectorWorker
+    CleanseWorker --> B2BReports
+    VectorWorker --> VectorDB
+    VectorDB --> RecommendEngine
 ```
 
 ---
 
-## 4. 상세 기능 요구사항 명세 (FRD)
-
-| ID | 기능 영역 | 세부 기능 | 우선순위 | 상세 기술 명세 |
-| :--- | :--- | :--- | :---: | :--- |
-| **FR-01** | **결과 렌더링** | **콤팩트 0점 베이스 링**| **P1** | 0점 베이스 링 크기를 maxR * 0.08로 축소 + 8대 대분류 전체 레이더 및 파이 표현 |
-| **FR-02** | **결과 렌더링** | **대분류/소분류 계층 뷰**| **P1** | 레이더만 우선 노출 ➔ 탭 시 파이 전환 ➔ 파이 탭 시 1.45x 확대 ➔ 바깥쪽 탭 시 복귀 |
-| **FR-03** | **인차트 조작** | **소분류 평가 시스템 유지**| **P1** | 휠 조작 시 면적 드래그, 0~10점 매핑, 탭 줌인, 바텀시트 태그 추가 완벽 유지 |
-| **FR-04** | **인차트 조작** | **배경 눈금 동적 재스케일링**| **P1** | 4점 이하 확대 시 배경 눈금 숫자가 대분류 점수 기준(예: 1점, 2점, 3점 상한)으로 전환 |
-| **FR-05** | **휠 네비게이션**| **하단 미니 반원 다이얼**| **P1** | 소분류 줌인 상태에서 하단 중앙 미니 반원을 돌려 대분류 손쉬운 전환 |
-
----
-
-## 5. 단계별 로드맵 & 마일스톤
+## 4. 단계별 로드맵 & 마일스톤
 
 | 단계 | 마일스톤 | 산출물 및 검증 기준 | 상태 |
 | :--- | :--- | :--- | :---: |
-| **1단계** | **설계 & 프로토타입** | • PRD 및 콤팩트 0점 베이스 링 기반 8대 대분류 레이더 / 소분류 파이 계층 뷰 확립<br>• 완성형 테이스팅 카드 HTML 프로토타입 | 🟢 **완료** |
-| **2단계** | **Flutter 기반 엔진** | • Isar 로컬 DB 및 Sync Engine 구축<br>• CustomPainter 기반 2단계 줌인 & 360도 통합 휠 위젯 | ⚪ 예정 |
-| **3단계** | **동적 API & 큐레이션** | • Dynamic Flavor Tree API & 관리자 승격 파이프라인 연동<br>• 음성 STT & LLM 요약 자동 완성 파이프라인 | ⚪ 예정 |
-| **4단계** | **검색/추천 & 배포** | • 위스키 색인 오프라인 검색 엔진<br>• 플레이버 벡터 유사도 추천 및 베타 배포 | ⚪ 예정 |
+| **1단계** | **설계 & 프로토타입** | • PRD 및 3대 영역(Frontend / Backend / Business Logic) 기술 명세 확립<br>• 0점 베이스 링 + Mega Pop-out 인터랙티브 프로토타입 완성 | 🟢 **완료** |
+| **2단계** | **Flutter 클라이언트 엔진** | • Isar 로컬 DB 및 Sync Engine 구축<br>• CustomPainter 2단계 줌인 & 360도 통합 휠 및 다이얼 림 위젯 구현 | ⚪ 예정 |
+| **3단계** | **백엔드 API & 동기화 파이프라인** | • ETag 델타 동기화 API 및 신규 향미 크라우드소싱 파이프라인 연동<br>• 유기명 본인인증(CI/DI) 모듈 연동 | ⚪ 예정 |
+| **4단계** | **데이터 상품화 & 추천 엔진** | • 플레이버 벡터 유사도 기반 추천 및 B2B 트렌드 분석 리포트 파이프라인<br>• 글로벌 다국가 규제 모듈 적용 및 베타 배포 | ⚪ 예정 |
 
 ---
 
-## 6. 인터랙티브 프로토타입 안내
+## 5. 상세 기술 문서 (Detailed Documentation)
 
-프로젝트 내 [prototype/index.html](file:///Users/chanholee/Desktop/project/FlavorWheelProject/prototype/index.html)에서 위 규칙이 모두 반영된 모바일 프로토타입을 즉시 테스트하실 수 있습니다:
+각 영역별 세부 설계 및 구현 명세는 아래 전용 문서에서 확인하실 수 있습니다:
 
-* **콤팩트 0점 미니 베이스 링 ($R_0 = R_{\max} \times 0.08$)**:
-  * 중심부의 0점 베이스 링이 작고 단단한 미니 코어 링으로 표시
-  * 0점인 대분류도 미니 링 둘레를 따라 꼭짓점이 연결되어 시원하게 뻗어나가는 8각형 레이더 다각형 형성
-* **완성형 차트 대분류/소분류 분리 뷰**:
-  1. 하단 `[🏆 완성된 차트 보기]` 진입 시 **8대 대분류 레이더 차트만 우선 표시**
-  2. 레이더 차트를 탭하면 **소분류 파이 차트로 전환** (미니 0점 링에서 바깥쪽으로 채워짐)
-  3. 특정 파이 조각을 탭하면 **해당 파이가 1.45배 확 커져서 눈에 확 들어옴**
-  4. 파이 바깥쪽을 누르면 다시 **대분류 레이더 차트만 보이는 상태로 복귀**
-* **소분류 평가 시스템 완벽 유지**: 면적 드래그 조작, 0~10점 매핑, 탭 줌인, 바텀시트 태그 추가, 하단 미니 다이얼 림 등 기존 휠 기능 100% 정상 작동
+* 🎨 **[Frontend 상세 기술 명세서](file:///Users/chanholee/Desktop/project/FlavorWheelProject/docs/Implementation%20Plan/frontend.md)**: Canvas 렌더링 수식, N-Depth 드릴다운 뷰, 제스처 매핑, Riverpod 상태 관리.
+* ⚙️ **[Backend 상세 기술 명세서](file:///Users/chanholee/Desktop/project/FlavorWheelProject/docs/Implementation%20Plan/backend.md)**: 프레임워크 독립 표준 아키텍처, ETag 델타 동기화, 데이터 파이프라인, JSON 스키마.
+* 🏢 **[Business Strategy 사업 전략서](file:///Users/chanholee/Desktop/project/FlavorWheelProject/docs/business_strategy.md)**: B2B 매장용 SaaS, 스마트오더 제휴, 단계별 로드맵, 법률 및 온보딩 정책.
+* 📐 **[Domain Logic 도메인 명세서](file:///Users/chanholee/Desktop/project/FlavorWheelProject/docs/domain_logic.md)**: 유비쿼터스 언어, N-Depth 재귀 트리 모델, 감각 캘리브레이션 수식, 상태 머신, 다국어 온톨로지.
+* 📚 **[학술 논문 및 참조 자료실](file:///Users/chanholee/Desktop/project/FlavorWheelProject/docs/references/README.md)**: 감각 과학, 캘리브레이션 논문, 렌더링 기법 자동 색인 자료실.
+
+---
+
+## 6. 인터랙티브 프로토타입 실행 안내
+
+프로젝트 내 [prototype/index.html](file:///Users/chanholee/Desktop/project/FlavorWheelProject/prototype/index.html) (또는 루트 [index.html](file:///Users/chanholee/Desktop/project/FlavorWheelProject/index.html))에서 프론트엔드 핵심 인터랙션을 브라우저에서 직접 테스트할 수 있습니다:
+
+1. **콤팩트 0점 베이스 링 ($R_0$)**: $0$점인 대분류도 중심 링에 자연스럽게 닫히는 레이더 다각형 확인.
+2. **3단계 계층 뷰**: 레이더 뷰 ➔ 파이 뷰 ➔ 개별 파이 1.45배 Mega Pop-out 하이라이트.
+3. **제스처 조작**: Y축 면적 드래그 점수 조정, 하단 미니 반원 다이얼 림 회전.
